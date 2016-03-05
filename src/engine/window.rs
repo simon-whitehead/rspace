@@ -17,13 +17,11 @@ pub struct Window<'window> {
 impl<'window> Window<'window> {
     pub fn new(title: &str, width: u32, height: u32) -> Window {
         
-        // Initialize SDL2
         let context = sdl2::init().unwrap();
         let video = context.video().unwrap();
 
         let events = Events::new(context.event_pump().unwrap());
 
-        // Create the window
         let window = video.window(title, width, height)
             .position_centered().opengl()
             .build().unwrap();
