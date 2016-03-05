@@ -20,7 +20,7 @@ impl Scene for DefaultScene {
         let renderer = &mut context.renderer;
         let events = &context.events;
 
-        if events.quit || events.key_escape {
+        if events.quit || events.key_pressed(sdl2::keyboard::Keycode::Escape) {
             return SceneResult::Quit;
         }
 

@@ -45,7 +45,7 @@ impl<'window> Window<'window> {
     pub fn process(&mut self) -> bool {
         self.context.events.pump();
 
-        !(self.context.events.quit || self.context.events.key_escape)
+        !(self.context.events.quit || self.context.events.key_pressed(sdl2::keyboard::Keycode::Escape))
     }
 
     pub fn render(&mut self) {

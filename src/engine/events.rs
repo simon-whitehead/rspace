@@ -4,7 +4,7 @@ use sdl2::{EventPump};
 
 pub struct Events {
     pub quit: bool,
-    pub key_escape: bool,
+    pub keys: [bool; 323],
 
     pump: EventPump
 }
@@ -14,8 +14,8 @@ impl Events {
         Events {
             pump: pump,
 
-            quit: false,
-            key_escape: false,
+            keys: [false; 323],
+            quit: false
         }
     }
 
@@ -28,18 +28,22 @@ impl Events {
                 Quit { .. } => self.quit = true,
 
                 KeyDown { keycode, .. } => match keycode {
-                    Some(Escape) => self.key_escape = true,
+                    Some(k) => self.keys[k as usize] = true,
                     _ => {}
                 },
 
                 KeyUp { keycode, .. } => match keycode {
-                    Some(Escape) => self.key_escape = false,
+                    Some(k) => self.keys[k as usize] = false,
                     _ => {}
                 },
 
                 _ => {}
             }
         }
+    }
+
+    pub fn key_pressed(&self, keycode: sdl2::keyboard::Keycode) -> bool {
+        self.keys[keycode as usize]
     }
 }
 
