@@ -2,13 +2,15 @@ extern crate sdl2;
 
 use sdl2::pixels::Color;
 
-use ::engine::events::Events;
 use ::engine::context::Context;
+use ::engine::events::Events;
+use ::engine::scene::Scene;
 
 pub struct Window<'window> {
     title: String,
 
-    context: Context<'window>
+    context: Context<'window>,
+    current_scene: Box<Scene>
 }
 
 impl<'window> Window<'window> {
@@ -35,7 +37,8 @@ impl<'window> Window<'window> {
                 video,
                 renderer,
                 events
-            )
+            ),
+            current_scene: Box::new(::engine::scene::DefaultScene)
         }
     }
 
@@ -46,9 +49,10 @@ impl<'window> Window<'window> {
     }
 
     pub fn render(&mut self) {
-        self.context.renderer.set_draw_color(Color::RGB(0, 153, 204));
-        self.context.renderer.clear();
-        self.context.renderer.present();
+        match self.current_scene.render(&mut self.context, 0f64) {
+            ::engine::scene::SceneResult::Quit => { self.context.events.quit = true; },
+            _ => ()
+        }
     }
 }
 
