@@ -3,15 +3,12 @@ extern crate sdl2;
 use sdl2::pixels::Color;
 
 use ::engine::events::Events;
+use ::engine::context::Context;
 
 pub struct Window<'window> {
     title: String,
 
-    events: Events,
-
-    sdl_context: sdl2::Sdl,
-    sdl_video: sdl2::VideoSubsystem,
-    sdl_renderer: sdl2::render::Renderer<'window>,
+    context: Context<'window>
 }
 
 impl<'window> Window<'window> {
@@ -33,24 +30,25 @@ impl<'window> Window<'window> {
         Window {
             title: title.to_string(),
 
-            events: events,
-
-            sdl_context: context,
-            sdl_video: video,
-            sdl_renderer: renderer,
+            context: ::engine::context::Context::new(
+                context,
+                video,
+                renderer,
+                events
+            )
         }
     }
 
     pub fn process(&mut self) -> bool {
-        self.events.pump();
+        self.context.events.pump();
 
-        !(self.events.quit || self.events.key_escape)
+        !(self.context.events.quit || self.context.events.key_escape)
     }
 
     pub fn render(&mut self) {
-        self.sdl_renderer.set_draw_color(Color::RGB(0, 153, 204));
-        self.sdl_renderer.clear();
-        self.sdl_renderer.present();
+        self.context.renderer.set_draw_color(Color::RGB(0, 153, 204));
+        self.context.renderer.clear();
+        self.context.renderer.present();
     }
 }
 
