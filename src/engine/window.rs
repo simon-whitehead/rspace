@@ -1,5 +1,7 @@
 extern crate sdl2;
 
+use std::collections;
+
 use sdl2::pixels::Color;
 
 use ::engine::context::Context;
@@ -10,6 +12,7 @@ pub struct Window<'window> {
     title: String,
 
     context: Context<'window>,
+    scenes: collections::HashMap<&'static str, Box<Scene>>,
     current_scene: Box<Scene>
 }
 
@@ -38,6 +41,7 @@ impl<'window> Window<'window> {
                 renderer,
                 events
             ),
+            scenes: collections::HashMap::new(),
             current_scene: Box::new(::engine::scene::DefaultScene)
         }
     }
@@ -53,6 +57,14 @@ impl<'window> Window<'window> {
             ::engine::scene::SceneResult::Quit => { self.context.events.quit = true; },
             _ => ()
         }
+    }
+
+    pub fn set_scene(&mut self, scene: Box<Scene>) {
+        self.current_scene = scene;
+    }
+
+    pub fn add_scene(&mut self, name: &'static str, scene: Box<Scene>) {
+        self.scenes.insert(name, scene);
     }
 }
 

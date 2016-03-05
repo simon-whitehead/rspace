@@ -2,21 +2,12 @@ extern crate sdl2;
 
 use sdl2::pixels::Color;
 
-use ::engine::context::Context;
+use engine::context::Context;
+use engine::scene::{Scene, SceneResult};
 
-pub enum SceneResult {
-    None,
-    Quit,
-    ChangeScene(Box<Scene>)
-}
+pub struct GameScene;
 
-pub trait Scene {
-    fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
-}
-
-pub struct DefaultScene;
-
-impl Scene for DefaultScene {
+impl Scene for GameScene {
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         let renderer = &mut context.renderer;
         let events = &context.events;
@@ -25,7 +16,7 @@ impl Scene for DefaultScene {
             return SceneResult::Quit;
         }
         
-        renderer.set_draw_color(Color::RGB(0, 153, 204));
+        renderer.set_draw_color(Color::RGB(255, 0, 0));
         renderer.clear();
         renderer.present();
 
