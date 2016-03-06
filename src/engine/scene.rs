@@ -27,7 +27,6 @@ impl Scene for DefaultScene {
         
         renderer.set_draw_color(Color::RGB(0, 153, 204));
         renderer.clear();
-        renderer.present();
 
         SceneResult::None
     }

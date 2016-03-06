@@ -54,6 +54,7 @@ impl<'window> Window<'window> {
 
     pub fn render(&mut self) {
         match self.current_scene.render(&mut self.context, 0f64) {
+            ::engine::scene::SceneResult::None => self.context.renderer.present(),
             ::engine::scene::SceneResult::Quit => { self.context.events.quit = true; },
             _ => ()
         }

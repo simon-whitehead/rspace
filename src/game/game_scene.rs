@@ -18,7 +18,6 @@ impl Scene for GameScene {
         
         renderer.set_draw_color(Color::RGB(255, 0, 0));
         renderer.clear();
-        renderer.present();
 
         SceneResult::None
     }
