@@ -21,4 +21,8 @@ impl Scene for GameScene {
 
         SceneResult::None
     }
+
+    fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
+        SceneResult::None
+    }
 }

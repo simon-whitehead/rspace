@@ -12,6 +12,7 @@ pub enum SceneResult {
 
 pub trait Scene {
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
+    fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
 }
 
 pub struct DefaultScene;
@@ -28,6 +29,10 @@ impl Scene for DefaultScene {
         renderer.set_draw_color(Color::RGB(0, 153, 204));
         renderer.clear();
 
+        SceneResult::None
+    }
+
+    fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         SceneResult::None
     }
 }
