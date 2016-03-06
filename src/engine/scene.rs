@@ -32,18 +32,15 @@ impl DefaultScene {
 
 impl Scene for DefaultScene {
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-        let renderer = &mut context.renderer;
-        let events = &context.events;
-
-        if events.quit || events.key_pressed(sdl2::keyboard::Keycode::Escape) {
+        if context.events.quit || context.events.key_pressed(sdl2::keyboard::Keycode::Escape) {
             return SceneResult::Quit;
         }
         
-        renderer.set_draw_color(Color::RGB(0, 153, 204));
-        renderer.clear();
+        context.renderer.set_draw_color(Color::RGB(0, 153, 204));
+        context.renderer.clear();
 
         for entity in &mut self.entities {
-            entity.render(context, elapsed);
+            entity.render(&mut context.renderer, &mut context.events, elapsed);
         }
 
         SceneResult::None
@@ -51,7 +48,7 @@ impl Scene for DefaultScene {
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         for entity in &mut self.entities {
-            entity.process(context, elapsed);
+            entity.process(&context.events, elapsed);
         }
         SceneResult::None
     }

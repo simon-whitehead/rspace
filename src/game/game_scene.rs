@@ -20,26 +20,25 @@ impl GameScene {
 
 impl Scene for GameScene {
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-        let renderer = &mut context.renderer;
         let events = &context.events;
 
         if events.quit || events.key_pressed(sdl2::keyboard::Keycode::Escape) {
             return SceneResult::Quit;
         }
+        
+        context.renderer.set_draw_color(Color::RGB(255, 0, 0));
+        context.renderer.clear();
 
         for entity in &mut self.entities {
-            entity.render(context, elapsed);
+            entity.render(&mut context.renderer, &context.events, elapsed);
         }
-        
-        renderer.set_draw_color(Color::RGB(255, 0, 0));
-        renderer.clear();
 
         SceneResult::None
     }
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         for entity in &mut self.entities {
-            entity.process(context, elapsed);
+            entity.process(&context.events, elapsed);
         }
         SceneResult::None
     }
