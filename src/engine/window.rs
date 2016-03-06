@@ -59,7 +59,7 @@ impl<'window> Window<'window> {
             ),
             frame_timer: frame_timer,
             scenes: collections::HashMap::new(),
-            current_scene: Box::new(::engine::scene::DefaultScene)
+            current_scene: Box::new(::engine::scene::DefaultScene::new())
         }
     }
 
