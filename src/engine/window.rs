@@ -66,6 +66,8 @@ impl<'window> Window<'window> {
     pub fn process(&mut self) -> bool {
         self.context.events.pump();
 
+        self.current_scene.process(&mut self.context, self.frame_timer.elapsed);
+
         !(self.context.events.quit || self.context.events.key_pressed(sdl2::keyboard::Keycode::Escape))
     }
 
