@@ -13,7 +13,8 @@ pub struct Window<'window> {
 
     context: Context<'window>,
     scenes: collections::HashMap<&'static str, Box<Scene>>,
-    current_scene: Box<Scene>
+    current_scene: Box<Scene>,
+    frame_timer: ::engine::scene::FrameTimer
 }
 
 impl<'window> Window<'window> {
@@ -32,6 +33,20 @@ impl<'window> Window<'window> {
         .accelerated()
         .build().unwrap();
 
+        let mut timer = context.timer().unwrap();
+
+        let interval = 1_000 / 60;
+        let mut prev = timer.ticks();
+        let mut last_second = timer.ticks();
+        let mut fps = 0u32;
+
+        let frame_timer = ::engine::scene::FrameTimer::new(
+            interval,
+            prev,
+            last_second,
+            fps
+        );
+
         Window {
             title: title.to_string(),
 
@@ -39,8 +54,10 @@ impl<'window> Window<'window> {
                 context,
                 video,
                 renderer,
+                timer,
                 events
             ),
+            frame_timer: frame_timer,
             scenes: collections::HashMap::new(),
             current_scene: Box::new(::engine::scene::DefaultScene)
         }
@@ -53,11 +70,42 @@ impl<'window> Window<'window> {
     }
 
     pub fn render(&mut self) {
-        match self.current_scene.render(&mut self.context, 0f64) {
-            ::engine::scene::SceneResult::None => self.context.renderer.present(),
-            ::engine::scene::SceneResult::Quit => { self.context.events.quit = true; },
-            _ => ()
+        match self.frame_cap() {
+            true => {
+                match self.current_scene.render(&mut self.context, self.frame_timer.elapsed) {
+                    ::engine::scene::SceneResult::None => self.context.renderer.present(),
+                    ::engine::scene::SceneResult::Quit => { self.context.events.quit = true; },
+                    _ => ()
+                }
+            },
+            false => ()
         }
+    }
+
+    fn frame_cap(&mut self) -> bool {
+        let frame_timer = &mut self.frame_timer;
+        let now = self.context.timer.ticks();
+        let delta = now - frame_timer.prev;
+        let elapsed = delta as f64 / 1_000.0;
+
+        // Wait until 1/60th of a second has passed since we last called this
+        if delta < frame_timer.interval {
+            self.context.timer.delay(frame_timer.interval - delta);
+            return false;
+        }
+
+        frame_timer.prev = now;
+        frame_timer.fps += 1;
+
+        frame_timer.elapsed = elapsed;
+
+        if now - frame_timer.last_second > 1_000 {
+            println!("FPS: {}", frame_timer.fps);
+            frame_timer.last_second = now;
+            frame_timer.fps = 0;
+        }
+
+        true
     }
 
     pub fn set_scene(&mut self, scene: Box<Scene>) {
