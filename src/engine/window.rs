@@ -77,6 +77,10 @@ impl<'window> Window<'window> {
         }
     }
 
+    pub fn init(&mut self) {
+        self.current_scene.init(&mut self.context.renderer);
+    }
+
     pub fn process(&mut self) -> bool {
         self.context.event_handler.pump();
 

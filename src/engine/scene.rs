@@ -38,7 +38,7 @@ impl DefaultScene {
 
 impl Scene for DefaultScene {
     fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
-
+        
     }
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {

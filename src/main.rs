@@ -17,6 +17,8 @@ fn main() {
 
     window.set_scene(Box::new(scene));
 
+    window.init();
+
     loop {
         if !window.process() {
             break;

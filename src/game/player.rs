@@ -30,8 +30,8 @@ impl Player {
             top: 0i32,
             left: 0i32,
 
-            width: 251,
-            height: 280,
+            width: 0,
+            height: 0,
 
             bounds: sdl2::rect::Rect::new(0, 0, 0, 0),
             texture: None
@@ -45,13 +45,21 @@ impl Player {
 
 impl Entity for Player {
     fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
-        self.texture = Some(renderer.load_texture(Path::new("assets/player/ship.png")).unwrap());
+        let tex = renderer.load_texture(Path::new("src/assets/player/ship.png")).unwrap();
+
+        let TextureQuery { width, height, .. } = tex.query();
+
+        self.width = width >> 1;
+        self.height = height >> 1;
+
+        self.texture = Some(tex);
     }
 
     fn render(&mut self, renderer: &mut sdl2::render::Renderer, elapsed: f64) {
-        renderer.set_draw_color(Color::RGB(255, 255, 255));
-
-        renderer.fill_rect(sdl2::rect::Rect::new(self.left, self.top, self.width, self.height));
+        match self.texture {
+            Some(ref tex) => renderer.copy(tex, Some(self.bounds), Some(sdl2::rect::Rect::new(self.left, self.top, self.width, self.height))),
+            _ => ()
+        }
     }
 
     fn process(&mut self, events: &mut ::engine::events::Events, elapsed: f64) {
