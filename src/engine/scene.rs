@@ -42,7 +42,7 @@ impl Scene for DefaultScene {
     }
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-        if context.events.quit || context.events.key_pressed(sdl2::keyboard::Keycode::Escape) {
+        if context.event_handler.quit || context.event_handler.key_pressed(sdl2::keyboard::Keycode::Escape) {
             return SceneResult::Quit;
         }
         
@@ -58,7 +58,7 @@ impl Scene for DefaultScene {
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         for entity in &mut self.entities {
-            entity.process(&mut context.events, elapsed);
+            entity.process(&mut context.event_handler, elapsed);
         }
         SceneResult::None
     }
