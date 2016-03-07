@@ -72,11 +72,11 @@ impl<'window> Window<'window> {
     }
 
     pub fn process(&mut self) -> bool {
-        self.context.events.pump();
+        self.context.event_handler.pump();
 
         self.current_scene.process(&mut self.context, self.frame_timer.elapsed);
 
-        !(self.context.events.quit || self.context.events.key_pressed(sdl2::keyboard::Keycode::Escape))
+        !(self.context.event_handler.quit || self.context.event_handler.key_pressed(sdl2::keyboard::Keycode::Escape))
     }
 
     pub fn render(&mut self) {
@@ -84,7 +84,7 @@ impl<'window> Window<'window> {
             true => {
                 match self.current_scene.render(&mut self.context, self.frame_timer.elapsed) {
                     ::engine::scene::SceneResult::None => self.context.renderer.present(),
-                    ::engine::scene::SceneResult::Quit => { self.context.events.quit = true; },
+                    ::engine::scene::SceneResult::Quit => { self.context.event_handler.quit = true; },
                     _ => ()
                 }
             },

@@ -22,7 +22,7 @@ impl GameScene {
 
 impl Scene for GameScene {
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-        let events = &mut context.events;
+        let events = &mut context.event_handler;
 
         if events.quit || events.key_pressed(sdl2::keyboard::Keycode::Escape) {
             return SceneResult::Quit;
@@ -40,7 +40,7 @@ impl Scene for GameScene {
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         for entity in &mut self.entities {
-            entity.process(&mut context.events, elapsed);
+            entity.process(&mut context.event_handler, elapsed);
         }
         SceneResult::None
     }
