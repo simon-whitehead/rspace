@@ -8,7 +8,7 @@ mod game;
 
 fn main() {
     let mut window = engine::Window::new("RSpace", 800, 600);
-    let mut player = game::Player;
+    let mut player = game::Player::new();
     let mut scene = game::scenes::GameScene::new();
 
     scene.add_entity(Box::new(player));

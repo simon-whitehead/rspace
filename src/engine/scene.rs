@@ -40,7 +40,7 @@ impl Scene for DefaultScene {
         context.renderer.clear();
 
         for entity in &mut self.entities {
-            entity.render(&mut context.renderer, &mut context.events, elapsed);
+            entity.render(&mut context.renderer, elapsed);
         }
 
         SceneResult::None
@@ -48,7 +48,7 @@ impl Scene for DefaultScene {
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         for entity in &mut self.entities {
-            entity.process(&context.events, elapsed);
+            entity.process(&mut context.events, elapsed);
         }
         SceneResult::None
     }

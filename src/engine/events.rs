@@ -1,10 +1,13 @@
 extern crate sdl2;
 
+use std::collections::HashMap;
+
 use sdl2::{EventPump};
+use sdl2::keyboard::Keycode;
 
 pub struct Events {
     pub quit: bool,
-    pub keys: [bool; 323],
+    pub keys: HashMap<Keycode, bool>,
 
     pump: EventPump
 }
@@ -14,7 +17,7 @@ impl Events {
         Events {
             pump: pump,
 
-            keys: [false; 323],
+            keys: HashMap::new(),
             quit: false
         }
     }
@@ -28,12 +31,20 @@ impl Events {
                 Quit { .. } => self.quit = true,
 
                 KeyDown { keycode, .. } => match keycode {
-                    Some(k) => self.keys[k as usize] = true,
+                    Some(k) => {
+                        if let Some(k) = self.keys.get_mut(&k) {
+                            *k = true;
+                        }
+                    },
                     _ => {}
                 },
 
                 KeyUp { keycode, .. } => match keycode {
-                    Some(k) => self.keys[k as usize] = false,
+                    Some(k) => {
+                        if let Some(k) = self.keys.get_mut(&k) {
+                            *k = false;
+                        }
+                    },
                     _ => {}
                 },
 
@@ -42,8 +53,15 @@ impl Events {
         }
     }
 
-    pub fn key_pressed(&self, keycode: sdl2::keyboard::Keycode) -> bool {
-        self.keys[keycode as usize]
+    pub fn key_pressed(&mut self, keycode: sdl2::keyboard::Keycode) -> bool {
+        let keys = &mut self.keys;
+        if let Some(k) = keys.get(&keycode) {
+            return *k;
+        }
+
+        keys.insert(keycode, false);
+
+        false
     }
 }
 
