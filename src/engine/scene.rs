@@ -16,15 +16,19 @@ pub trait Scene {
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
 
     fn add_entity(&mut self, entity: Box<Entity>);
+
+    fn get_bounds(&self) -> sdl2::rect::Rect;
 }
 
 pub struct DefaultScene {
+    bounds: sdl2::rect::Rect,
     entities: Vec<Box<Entity>>
 }
 
 impl DefaultScene {
     pub fn new() -> DefaultScene {
         DefaultScene {
+            bounds: sdl2::rect::Rect::new(0, 0, 0, 0),
             entities: Vec::new()
         }
     }
@@ -55,6 +59,10 @@ impl Scene for DefaultScene {
 
     fn add_entity(&mut self, entity: Box<Entity>) {
         self.entities.push(entity);
+    }
+
+    fn get_bounds(&self) -> sdl2::rect::Rect {
+        self.bounds
     }
 }
 

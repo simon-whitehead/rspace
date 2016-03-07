@@ -7,12 +7,14 @@ use engine::entity::Entity;
 use engine::scene::{Scene, SceneResult};
 
 pub struct GameScene {
+    bounds: sdl2::rect::Rect,
     entities: Vec<Box<Entity>>
 }
 
 impl GameScene {
-    pub fn new() -> GameScene {
+    pub fn new(width: u32, height: u32) -> GameScene {
         GameScene {
+            bounds: sdl2::rect::Rect::new(0, 0, width, height),
             entities: Vec::new()
         }
     }
@@ -45,5 +47,9 @@ impl Scene for GameScene {
 
     fn add_entity(&mut self, entity: Box<Entity>) {
         self.entities.push(entity);
+    }
+
+    fn get_bounds(&self) -> sdl2::rect::Rect {
+        self.bounds
     }
 }

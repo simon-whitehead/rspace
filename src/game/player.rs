@@ -4,19 +4,28 @@ use sdl2::pixels::Color;
 
 use ::engine::context::Context;
 use ::engine::entity::Entity;
-use ::engine::scene::{SceneResult};
+use ::engine::scene::{Scene, SceneResult};
+use ::engine::window::Window;
 
 pub struct Player {
     top: i32,
-    left: i32
+    left: i32,
+    
+    bounds: sdl2::rect::Rect
 }
 
 impl Player {
     pub fn new() -> Player {
         Player {
             top: 0i32,
-            left: 0i32
+            left: 0i32,
+
+            bounds: sdl2::rect::Rect::new(0, 0, 0, 0)
         }
+    }
+
+    pub fn set_bounds(&mut self, rect: sdl2::rect::Rect) {
+        self.bounds = rect;
     }
 }
 
@@ -29,20 +38,19 @@ impl Entity for Player {
 
     fn process(&mut self, events: &mut ::engine::events::Events, elapsed: f64) {
         if events.key_pressed(::sdl2::keyboard::Keycode::Up) {
-            self.top -= 10;
+            self.top = ::engine::helpers::clamp_min(self.top, -10, 0);
         }
 
         if events.key_pressed(::sdl2::keyboard::Keycode::Down) {
-            self.top += 10;
+            self.top = ::engine::helpers::clamp_max(self.top, 10, self.bounds.bottom() as i32 - 50);
         }
 
         if events.key_pressed(::sdl2::keyboard::Keycode::Left) {
-            self.left -= 10;
+            self.left = ::engine::helpers::clamp_min(self.left, -10, 0);
         }
 
         if events.key_pressed(::sdl2::keyboard::Keycode::Right) {
-            self.left += 10;
+            self.left = ::engine::helpers::clamp_max(self.left, 10, self.bounds.right() as i32 - 50);
         }
-
     }
 }

@@ -9,6 +9,10 @@ use ::engine::events::Events;
 use ::engine::scene::Scene;
 
 pub struct Window<'window> {
+
+    pub width: u32,
+    pub height: u32,
+
     title: String,
 
     context: Context<'window>,
@@ -18,7 +22,7 @@ pub struct Window<'window> {
 }
 
 impl<'window> Window<'window> {
-    pub fn new(title: &str, width: u32, height: u32) -> Window {
+    pub fn new(title: &str, width: u32, height: u32) -> Window<'window> {
         
         let context = sdl2::init().unwrap();
         let video = context.video().unwrap();
@@ -48,6 +52,10 @@ impl<'window> Window<'window> {
         );
 
         Window {
+
+            width: width,
+            height: height,
+
             title: title.to_string(),
 
             context: ::engine::context::Context::new(
