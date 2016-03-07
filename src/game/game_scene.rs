@@ -1,4 +1,5 @@
 extern crate sdl2;
+extern crate sdl2_image;
 
 use sdl2::pixels::Color;
 
@@ -21,6 +22,12 @@ impl GameScene {
 }
 
 impl Scene for GameScene {
+    fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
+        for entity in &mut self.entities {
+            entity.init(renderer);
+        }
+    }
+
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         let events = &mut context.events;
 

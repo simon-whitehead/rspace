@@ -1,8 +1,11 @@
 extern crate sdl2;
+extern crate sdl2_image;
 
 use std::collections;
 
 use sdl2::pixels::Color;
+
+use sdl2_image::LoadTexture;
 
 use ::engine::context::Context;
 use ::engine::events::Events;
@@ -25,6 +28,8 @@ impl<'window> Window<'window> {
     pub fn new(title: &str, width: u32, height: u32) -> Window<'window> {
         
         let context = sdl2::init().unwrap();
+        let image_context = sdl2_image::init(sdl2_image::INIT_PNG).unwrap();
+
         let video = context.video().unwrap();
 
         let events = Events::new(context.event_pump().unwrap());
@@ -60,6 +65,7 @@ impl<'window> Window<'window> {
 
             context: ::engine::context::Context::new(
                 context,
+                image_context,
                 video,
                 renderer,
                 timer,

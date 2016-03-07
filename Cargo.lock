@@ -2,7 +2,8 @@
 name = "rspace"
 version = "0.1.0"
 dependencies = [
- "sdl2 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sdl2 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sdl2_image 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -44,7 +45,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "sdl2"
-version = "0.16.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -61,5 +62,16 @@ version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "sdl2_image"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "bitflags 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sdl2 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sdl2-sys 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

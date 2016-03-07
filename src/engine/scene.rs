@@ -12,6 +12,8 @@ pub enum SceneResult {
 }
 
 pub trait Scene {
+    fn init(&mut self, renderer: &mut sdl2::render::Renderer);
+
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
 
@@ -35,6 +37,10 @@ impl DefaultScene {
 }
 
 impl Scene for DefaultScene {
+    fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
+
+    }
+
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         if context.events.quit || context.events.key_pressed(sdl2::keyboard::Keycode::Escape) {
             return SceneResult::Quit;
