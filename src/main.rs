@@ -14,7 +14,7 @@ fn main() {
     let mut scene = game::scenes::GameScene::new(window.width, window.height);
     let mut player = game::Player::new(scene.get_bounds());
 
-    let mut explosion = engine::entities::FrameAnimatedSprite::new(Path::new("assets/explosion/large/"), 0.1, 60f64, scene.get_bounds());
+    let mut explosion = engine::entities::FrameAnimatedSprite::new(Path::new("assets/explosion/large/"), 0.1, scene.get_bounds());
 
     scene.add_entity(Box::new(player));
     scene.add_entity(Box::new(explosion));

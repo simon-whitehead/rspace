@@ -20,14 +20,13 @@ pub struct FrameAnimatedSprite<'sprite> {
     frame_path: &'sprite Path,
     frames: Vec<Texture>,
     frame_delay: f64,
-    fps: f64,
     current_time: f64,
 
     bounds: sdl2::rect::Rect
 }
 
 impl<'sprite> FrameAnimatedSprite<'sprite> {
-    pub fn new(path: &'sprite Path, frame_delay: f64, fps: f64, bounds: sdl2::rect::Rect) -> FrameAnimatedSprite {
+    pub fn new(path: &'sprite Path, frame_delay: f64, bounds: sdl2::rect::Rect) -> FrameAnimatedSprite {
         FrameAnimatedSprite {
             top: 0i32,
             left: 0i32,
@@ -38,7 +37,6 @@ impl<'sprite> FrameAnimatedSprite<'sprite> {
             frame_path: path,
             frames: Vec::new(),
             frame_delay: frame_delay,
-            fps: fps,
             current_time: 0f64,
 
             bounds: bounds
