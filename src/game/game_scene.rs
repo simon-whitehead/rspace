@@ -4,7 +4,7 @@ extern crate sdl2_image;
 use sdl2::pixels::Color;
 
 use engine::context::Context;
-use engine::entity::Entity;
+use engine::entities::Entity;
 use engine::scene::{Scene, SceneResult};
 
 pub struct GameScene {

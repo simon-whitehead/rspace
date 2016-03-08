@@ -3,7 +3,7 @@ extern crate sdl2;
 use sdl2::pixels::Color;
 
 use ::engine::context::Context;
-use ::engine::entity::Entity;
+use ::engine::entities::Entity;
 
 pub enum SceneResult {
     None,

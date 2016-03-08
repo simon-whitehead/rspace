@@ -25,7 +25,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new() -> Player {
+    pub fn new(bounds: sdl2::rect::Rect) -> Player {
         Player {
             top: 0i32,
             left: 0i32,
@@ -33,13 +33,9 @@ impl Player {
             width: 0,
             height: 0,
 
-            bounds: sdl2::rect::Rect::new(0, 0, 0, 0),
+            bounds: bounds,
             texture: None
         }
-    }
-
-    pub fn set_bounds(&mut self, rect: sdl2::rect::Rect) {
-        self.bounds = rect;
     }
 }
 
