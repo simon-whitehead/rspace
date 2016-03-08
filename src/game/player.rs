@@ -45,7 +45,7 @@ impl Player {
 
 impl Entity for Player {
     fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
-        let tex = renderer.load_texture(Path::new("src/assets/player/ship.png")).unwrap();
+        let tex = renderer.load_texture(Path::new("assets/player/ship.png")).unwrap();
 
         let TextureQuery { width, height, .. } = tex.query();
 
