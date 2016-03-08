@@ -35,7 +35,7 @@ impl Scene for GameScene {
             return SceneResult::Quit;
         }
         
-        context.renderer.set_draw_color(Color::RGB(255, 0, 0));
+        context.renderer.set_draw_color(Color::RGB(0, 0, 0));
         context.renderer.clear();
 
         for entity in &mut self.entities {
