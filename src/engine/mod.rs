@@ -7,6 +7,7 @@ pub mod events;
 pub mod helpers;
 pub mod scene;
 pub mod window;
+pub mod text;
 
 pub mod entities {
     pub use engine::entity::Entity;
