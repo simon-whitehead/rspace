@@ -90,7 +90,7 @@ impl<'window> Window<'window> {
     pub fn init(&mut self) {
         self.current_scene.init(&mut self.context);
         
-        // Initialize and store a 
+        // Initialize and store a Text entity that will draw the current FPS
         let mut fps = Text::new("0", 10, 800-48, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf", self.current_scene.get_bounds());
                 
         fps.init(&mut self.context);
@@ -98,10 +98,13 @@ impl<'window> Window<'window> {
     }
 
     pub fn process(&mut self) -> bool {
+        // Pump the events through the event pump
         self.context.event_handler.pump();
 
+        // Let our current scene update
         self.current_scene.process(&mut self.context, self.frame_timer.elapsed);
         
+        // If we have an FPS surface, update its value
         if let Some(ref mut fps) = self.fps {
             fps.set_text(self.frame_timer.last_fps.to_string());
         }
@@ -114,9 +117,10 @@ impl<'window> Window<'window> {
             true => {
                 match self.current_scene.render(&mut self.context, self.frame_timer.elapsed) {
                     ::engine::scene::SceneResult::None => {
-                       if let Some(ref mut fps) = self.fps {
+                        // Render the FPS on top of the scene
+                        if let Some(ref mut fps) = self.fps {
                             fps.render(&self.context.texture_cache, &mut self.context.renderer, self.frame_timer.elapsed);
-                       }
+                        }
                         self.context.renderer.present();
                     },
                     ::engine::scene::SceneResult::Quit => { self.context.event_handler.quit = true; },
@@ -145,6 +149,7 @@ impl<'window> Window<'window> {
         frame_timer.elapsed = elapsed;
 
         if now - frame_timer.last_second > 1_000 {
+            // Store our current FPS
             frame_timer.last_fps = frame_timer.fps;
             frame_timer.last_second = now;
             frame_timer.fps = 0;

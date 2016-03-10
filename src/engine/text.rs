@@ -25,7 +25,7 @@ pub struct Text {
     font_path: &'static str,
     color: Color,
     
-    bounds: sdl2::rect::Rect
+    bounds: Rect
 }
 
 impl Text {
@@ -52,9 +52,11 @@ impl Text {
 
 impl Entity for Text {
     fn init(&mut self, context: &mut Context) {
+        // Store an Sdl2TtfContext so that it doesn't go out of scope while the Text
+        // Entity is in scope
         self.ttf_context = Some(sdl2_ttf::init().unwrap());  
         
-        // Load a font
+        // Load and store a font
         let font_path = Path::new(self.font_path);
         if let Some(ref context) = self.ttf_context {
             let font = context.load_font(&font_path, self.font_size).unwrap();
@@ -64,6 +66,7 @@ impl Entity for Text {
     
     fn render(&mut self, texture_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
         if let Some(ref font) = self.font {
+            // Create a surface and texture to render
             let surface = font.render(&self.text[..])
                 .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
 
