@@ -8,21 +8,21 @@ use sdl2::pixels::Color;
 
 use ::engine::entities::Entity;
 
-pub struct Text<'text> {
+pub struct Text {
     top: i32,
     left: i32,
     
     text: String,
     font_size: u16,
-    font_path: &'text Path,
+    font_path: &'static str,
     color: Color,
     
     texture: Option<Texture>,
     bounds: sdl2::rect::Rect
 }
 
-impl<'text> Text<'text> {
-    pub fn new(text: &str, top: i32, left: i32, size: u16, color: Color, path: &'text Path, bounds: sdl2::rect::Rect) -> Text<'text> {
+impl Text {
+    pub fn new(text: &str, top: i32, left: i32, size: u16, color: Color, path: &'static str, bounds: sdl2::rect::Rect) -> Text {
         Text {
             top: top,
             left: left,
@@ -36,14 +36,19 @@ impl<'text> Text<'text> {
             bounds: bounds
         } 
     }
+    
+    pub fn set_text(&mut self, text: String) {
+        self.text = text.to_string();
+    }
 }
 
-impl<'text> Entity for Text<'text> {
+impl Entity for Text {
     fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
         let ttf_context = sdl2_ttf::init().unwrap();  
         
         // Load a font
-        let font = ttf_context.load_font(&self.font_path, self.font_size).unwrap();
+        let font_path = Path::new(self.font_path);
+        let font = ttf_context.load_font(&font_path, self.font_size).unwrap();
 
         //Create a surface, then create a texture from the surface to render
         let text_str: &str = &self.text[..];
@@ -66,9 +71,5 @@ impl<'text> Entity for Text<'text> {
      
     fn process(&mut self, event_handler: &mut ::engine::events::Events, elapsed: f64) {
          
-    }
-    
-    pub fn set_text(&mut self, text: String) {
-        self.text = text.to_string();
     }
 }

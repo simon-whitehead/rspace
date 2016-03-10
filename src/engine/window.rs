@@ -85,11 +85,12 @@ impl<'window> Window<'window> {
     pub fn init(&mut self) {
         self.current_scene.init(&mut self.context.renderer);
         
-        let fps_texture = ::engine::text::Text::new("0", 50, 50, 24, Color::RGBA(255, 0, 0, 255), Path::new("assets/fonts/Lato-Thin.ttf"),  self.current_scene.get_bounds());
+        let fps_texture = ::engine::text::Text::new("0", 50, 50, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf",  self.current_scene.get_bounds());
                 
-        self.current_scene.add_entity(Box::new(fps_texture));
+        self.current_scene.add_entity(Box::new(fps_texture.clone()));
         
         self.fps_texture = Some(fps_texture);
+          
     }
 
     pub fn process(&mut self) -> bool {
@@ -98,7 +99,7 @@ impl<'window> Window<'window> {
         self.current_scene.process(&mut self.context, self.frame_timer.elapsed);
         
         match self.fps_texture {
-            Some(ref fps_texture) =>  fps_texture.set_text(self.frame_timer.fps),
+            Some(ref fps_texture) =>  fps_texture.set_text(self.frame_timer.fps.to_string()),
             _ => ()
         }
 
