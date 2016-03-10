@@ -35,8 +35,8 @@ impl FrameAnimatedSprite {
                cache_result: AssetCacheResult) -> FrameAnimatedSprite {
 
         FrameAnimatedSprite {
-            top: position.0,
-            left: position.1,
+            left: position.0,
+            top: position.1,
 
             width: 0,
             height: 0,

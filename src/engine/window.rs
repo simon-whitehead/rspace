@@ -91,7 +91,7 @@ impl<'window> Window<'window> {
         self.current_scene.init(&mut self.context);
         
         // Initialize and store a Text entity that will draw the current FPS
-        let mut fps = Text::new("0", 10, 800-48, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf", self.current_scene.get_bounds());
+        let mut fps = Text::new((800-48, 10), "0", 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf", self.current_scene.get_bounds());
                 
         fps.init(&mut self.context);
         self.fps = Some(fps);

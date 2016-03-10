@@ -29,10 +29,16 @@ pub struct Text {
 }
 
 impl Text {
-    pub fn new(text: &str, top: i32, left: i32, size: u16, color: Color, path: &'static str, bounds: Rect) -> Text {
+    pub fn new(position: (i32, i32),
+               text: &str,
+               size: u16,
+               color: Color,
+               path: &'static str,
+               bounds: Rect) -> Text {
+
         Text {
-            top: top,
-            left: left,
+            left: position.0,
+            top: position.1,
            
             text: text.to_string(),
             ttf_context: None,
