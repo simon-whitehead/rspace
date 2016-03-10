@@ -101,9 +101,8 @@ impl<'window> Window<'window> {
 
         self.current_scene.process(&mut self.context, self.frame_timer.elapsed);
         
-        match self.fps_texture {
-            Some(ref mut fps_texture) => fps_texture.set_text(self.frame_timer.last_fps.to_string()),
-            _ => ()
+        if let Some(ref mut fps_texture) = self.fps_texture {
+            fps_texture.set_text(self.frame_timer.last_fps.to_string());
         }
 
         !(self.context.event_handler.quit || self.context.event_handler.key_pressed(sdl2::keyboard::Keycode::Escape))
@@ -146,7 +145,6 @@ impl<'window> Window<'window> {
 
         if now - frame_timer.last_second > 1_000 {
             frame_timer.last_fps = frame_timer.fps;
-            println!("FPS: {}", frame_timer.last_fps);
             frame_timer.last_second = now;
             frame_timer.fps = 0;
         }
