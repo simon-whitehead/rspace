@@ -2,8 +2,6 @@
 extern crate sdl2;
 extern crate sdl2_image;
 
-use std::path::Path;
-
 use engine::entities::FrameAnimatedSprite;
 use engine::scene::Scene;
 use engine::Window;

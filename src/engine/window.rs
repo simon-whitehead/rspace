@@ -1,15 +1,16 @@
 extern crate sdl2;
 extern crate sdl2_image;
 
-use std::collections;
+use std::collections::HashMap;
 
 use sdl2::pixels::Color;
 
 use sdl2_image::LoadTexture;
 
+use ::engine::cache::TextureCache;
 use ::engine::context::Context;
 use ::engine::events::Events;
-use ::engine::scene::Scene;
+use ::engine::scene::{DefaultScene, FrameTimer, Scene};
 
 pub struct Window<'window> {
 
@@ -19,9 +20,9 @@ pub struct Window<'window> {
 
     title: String,
 
-    scenes: collections::HashMap<&'static str, Box<Scene>>,
+    scenes: HashMap<&'static str, Box<Scene>>,
     current_scene: Box<Scene>,
-    frame_timer: ::engine::scene::FrameTimer
+    frame_timer: FrameTimer
 }
 
 impl<'window> Window<'window> {
@@ -42,7 +43,7 @@ impl<'window> Window<'window> {
         .accelerated()
         .build().unwrap();
 
-        let texture_cache = ::engine::cache::TextureCache::new();
+        let texture_cache = TextureCache::new();
 
         let mut timer = context.timer().unwrap();
 
@@ -51,7 +52,7 @@ impl<'window> Window<'window> {
         let mut last_second = timer.ticks();
         let mut fps = 0u32;
 
-        let frame_timer = ::engine::scene::FrameTimer::new(
+        let frame_timer = FrameTimer::new(
             interval,
             prev,
             last_second,
@@ -65,7 +66,7 @@ impl<'window> Window<'window> {
 
             title: title.to_string(),
 
-            context: ::engine::context::Context::new(
+            context: Context::new(
                 context,
                 image_context,
                 video,
@@ -75,8 +76,8 @@ impl<'window> Window<'window> {
                 texture_cache
             ),
             frame_timer: frame_timer,
-            scenes: collections::HashMap::new(),
-            current_scene: Box::new(::engine::scene::DefaultScene::new())
+            scenes: HashMap::new(),
+            current_scene: Box::new(DefaultScene::new())
         }
     }
 

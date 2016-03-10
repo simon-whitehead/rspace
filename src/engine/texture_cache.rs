@@ -4,8 +4,9 @@ use sdl2::render::{Renderer, Texture};
 use sdl2_image::LoadTexture;
 
 use std;
-use std::collections::HashMap;
-use std::iter::FromIterator;
+use std::fs;
+
+use std::path::Path;
 
 use ::engine::cache::AssetCacheResult;
 
@@ -27,8 +28,8 @@ impl TextureCache {
         // Store the current index
         let current_index = self.index; // Where does this group start in the cache vector
 
-        let path = std::path::Path::new(path_str);
-        let files = std::fs::read_dir(path).unwrap();
+        let path = Path::new(path_str);
+        let files = fs::read_dir(path).unwrap();
         let mut length = 0; // How many frames are in this group?
 
         // Iterate over the files in the directory and pull them in

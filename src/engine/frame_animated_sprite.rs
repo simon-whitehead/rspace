@@ -2,12 +2,10 @@
 extern crate sdl2;
 extern crate sdl2_image;
 
-use std::fs;
 use std::path::Path;
 
 use sdl2::rect::Rect;
 use sdl2::render::{Renderer, Texture, TextureQuery};
-use sdl2_image::LoadTexture;
 
 use ::engine::cache::{TextureCache, AssetCacheResult};
 use ::engine::context::Context;
@@ -72,7 +70,7 @@ impl Entity for FrameAnimatedSprite {
         // Grab the frame from the texture cache, with the cache offset applied
         let sprite = &texture_cache.assets[self.cache.index as usize + current_frame as usize];
 
-        renderer.copy(sprite, Some(self.bounds), Some(sdl2::rect::Rect::new(self.left, self.top, self.width, self.height)));
+        renderer.copy(sprite, Some(self.bounds), Some(Rect::new(self.left, self.top, self.width, self.height)));
     }
 
     fn process(&mut self, event_handler: &mut Events, elapsed: f64) {
