@@ -87,7 +87,7 @@ impl<'window> Window<'window> {
         
         let fps_texture = ::engine::text::Text::new("0", 50, 50, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf",  self.current_scene.get_bounds());
                 
-        self.current_scene.add_entity(Box::new(fps_texture.clone()));
+        self.current_scene.add_entity(Box::new(fps_texture);
         
         self.fps_texture = Some(fps_texture);
           
