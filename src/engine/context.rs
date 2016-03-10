@@ -1,23 +1,34 @@
 extern crate sdl2;
 extern crate sdl2_image;
 
-pub struct Context<'window> {
-    pub timer: sdl2::TimerSubsystem,
-    pub renderer: sdl2::render::Renderer<'window>,
-    pub event_handler: ::engine::events::Events,
+use sdl2::Sdl;
+use sdl2::TimerSubsystem;
+use sdl2::VideoSubsystem;
+use sdl2::render::Renderer;
+use sdl2_image::Sdl2ImageContext;
 
-    context: sdl2::Sdl,
-    image_context: sdl2_image::Sdl2ImageContext,
-    video: sdl2::VideoSubsystem
+use ::engine::events::Events;
+use ::engine::cache::TextureCache;
+
+pub struct Context<'window> {
+    pub timer: TimerSubsystem,
+    pub renderer: Renderer<'window>,
+    pub event_handler: Events,
+    pub texture_cache: TextureCache,
+
+    context: Sdl,
+    image_context: Sdl2ImageContext,
+    video: VideoSubsystem
 }
 
 impl<'window> Context<'window> {
-    pub fn new(sdl_context: sdl2::Sdl,
-               sdl_image_context: sdl2_image::Sdl2ImageContext,
-               sdl_video: sdl2::VideoSubsystem,
-               sdl_renderer: sdl2::render::Renderer<'window>,
-               sdl_timer: sdl2::TimerSubsystem,
-               event_handler: ::engine::events::Events) -> Context<'window> {
+    pub fn new(sdl_context: Sdl,
+               sdl_image_context: Sdl2ImageContext,
+               sdl_video: VideoSubsystem,
+               sdl_renderer: Renderer<'window>,
+               sdl_timer: TimerSubsystem,
+               event_handler: Events,
+               texture_cache: TextureCache) -> Context<'window> {
 
         Context {
             context: sdl_context,
@@ -25,7 +36,8 @@ impl<'window> Context<'window> {
             video: sdl_video,
             renderer: sdl_renderer,
             timer: sdl_timer,
-            event_handler: event_handler
+            event_handler: event_handler,
+            texture_cache: texture_cache
         }
     }
 }

@@ -6,6 +6,8 @@ use std::path::Path;
 use sdl2::render::{Texture, TextureQuery};
 use sdl2::pixels::Color;
 
+use ::engine::cache::TextureCache;
+use ::engine::context::Context;
 use ::engine::entities::Entity;
 
 pub struct Text {
@@ -13,11 +15,12 @@ pub struct Text {
     left: i32,
     
     text: String,
+    ttf_context: Option<sdl2_ttf::Sdl2TtfContext>,
+    font: Option<sdl2_ttf::Font>,
     font_size: u16,
     font_path: &'static str,
     color: Color,
     
-    texture: Option<Texture>,
     bounds: sdl2::rect::Rect
 }
 
@@ -28,11 +31,12 @@ impl Text {
             left: left,
            
             text: text.to_string(),
+            ttf_context: None,
+            font: None,
             font_size: size,
             font_path: path,
             color: color,
             
-            texture: None,
             bounds: bounds
         } 
     }
@@ -43,29 +47,27 @@ impl Text {
 }
 
 impl Entity for Text {
-    fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
-        let ttf_context = sdl2_ttf::init().unwrap();  
+    fn init(&mut self, context: &mut Context) {
+        println!("Text init()");
+        self.ttf_context = Some(sdl2_ttf::init().unwrap());  
         
         // Load a font
         let font_path = Path::new(self.font_path);
-        let font = ttf_context.load_font(&font_path, self.font_size).unwrap();
-
-        //Create a surface, then create a texture from the surface to render
-        let text_str: &str = &self.text[..];
-        let surface = font.render(text_str)
-            .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
-            
-        let tex = renderer.create_texture_from_surface(&surface).unwrap();
-        self.texture = Some(tex);  
+        if let Some(ref context) = self.ttf_context {
+            let font = context.load_font(&font_path, self.font_size).unwrap();
+            self.font = Some(font);
+        }
     }
     
-    fn render(&mut self, renderer: &mut sdl2::render::Renderer, elapsed: f64) {
-        match self.texture {
-            Some(ref tex) => {
-                let TextureQuery { width, height, .. } = tex.query();
-                renderer.copy(&tex, Some(self.bounds), Some(sdl2::rect::Rect::new(self.left, self.top, width, height)));    
-            }
-            _ => ()
+    fn render(&mut self, texture_cache: &TextureCache, renderer: &mut sdl2::render::Renderer, elapsed: f64) {
+        if let Some(ref font) = self.font {
+            let surface = font.render(&self.text[..])
+                .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+
+            let tex = renderer.create_texture_from_surface(&surface).unwrap();
+
+            let TextureQuery { width, height, .. } = tex.query();
+            renderer.copy(&tex, Some(self.bounds), Some(sdl2::rect::Rect::new(self.left, self.top, width, height)));    
         }
     }
      

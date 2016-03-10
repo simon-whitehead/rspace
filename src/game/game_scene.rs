@@ -2,29 +2,30 @@ extern crate sdl2;
 extern crate sdl2_image;
 
 use sdl2::pixels::Color;
+use sdl2::rect::Rect;
 
 use engine::context::Context;
 use engine::entities::Entity;
 use engine::scene::{Scene, SceneResult};
 
 pub struct GameScene {
-    bounds: sdl2::rect::Rect,
+    bounds: Rect,
     entities: Vec<Box<Entity>>
 }
 
 impl GameScene {
     pub fn new(width: u32, height: u32) -> GameScene {
         GameScene {
-            bounds: sdl2::rect::Rect::new(0, 0, width, height),
+            bounds: Rect::new(0, 0, width, height),
             entities: Vec::new()
         }
     }
 }
 
 impl Scene for GameScene {
-    fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
+    fn init(&mut self, context: &mut Context) {
         for entity in &mut self.entities {
-            entity.init(renderer);
+            entity.init(context);
         }
     }
 
@@ -39,7 +40,7 @@ impl Scene for GameScene {
         context.renderer.clear();
 
         for entity in &mut self.entities {
-            entity.render(&mut context.renderer, elapsed);
+            entity.render(&context.texture_cache, &mut context.renderer, elapsed);
         }
 
         SceneResult::None
@@ -56,7 +57,7 @@ impl Scene for GameScene {
         self.entities.push(entity);
     }
 
-    fn get_bounds(&self) -> sdl2::rect::Rect {
+    fn get_bounds(&self) -> Rect {
         self.bounds
     }
 }

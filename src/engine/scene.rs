@@ -1,6 +1,7 @@
 extern crate sdl2;
 
 use sdl2::pixels::Color;
+use sdl2::rect::Rect;
 
 use ::engine::context::Context;
 use ::engine::entities::Entity;
@@ -12,32 +13,32 @@ pub enum SceneResult {
 }
 
 pub trait Scene {
-    fn init(&mut self, renderer: &mut sdl2::render::Renderer);
+    fn init(&mut self, context: &mut Context);
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
 
     fn add_entity(&mut self, entity: Box<Entity>);
 
-    fn get_bounds(&self) -> sdl2::rect::Rect;
+    fn get_bounds(&self) -> Rect;
 }
 
 pub struct DefaultScene {
-    bounds: sdl2::rect::Rect,
+    bounds: Rect,
     entities: Vec<Box<Entity>>
 }
 
 impl DefaultScene {
     pub fn new() -> DefaultScene {
         DefaultScene {
-            bounds: sdl2::rect::Rect::new(0, 0, 0, 0),
+            bounds: Rect::new(0, 0, 0, 0),
             entities: Vec::new()
         }
     }
 }
 
 impl Scene for DefaultScene {
-    fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
+    fn init(&mut self, context: &mut Context) {
         
     }
 
@@ -50,7 +51,7 @@ impl Scene for DefaultScene {
         context.renderer.clear();
 
         for entity in &mut self.entities {
-            entity.render(&mut context.renderer, elapsed);
+            entity.render(&context.texture_cache, &mut context.renderer, elapsed);
         }
 
         SceneResult::None
@@ -67,7 +68,7 @@ impl Scene for DefaultScene {
         self.entities.push(entity);
     }
 
-    fn get_bounds(&self) -> sdl2::rect::Rect {
+    fn get_bounds(&self) -> Rect {
         self.bounds
     }
 }
@@ -77,7 +78,9 @@ pub struct FrameTimer {
     pub fps: u32,
     pub interval: u32,
     pub prev: u32,
-    pub last_second: u32
+    pub last_second: u32,
+
+    pub last_fps: u32   // The last captured FPS we had
 }
 
 impl FrameTimer {
@@ -92,7 +95,9 @@ impl FrameTimer {
             prev: previous,
             last_second: last_second,
             fps: fps,
-            elapsed: 0f64
+            elapsed: 0f64,
+
+            last_fps: 0
         }
     }
 }

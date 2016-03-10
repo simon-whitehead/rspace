@@ -2,30 +2,32 @@ extern crate sdl2;
 extern crate sdl2_image;
 extern crate sdl2_ttf;
 
-use std::collections;
+use std::collections::HashMap;
 
 use std::path::Path;
 use sdl2::pixels::Color;
 
 use sdl2_image::LoadTexture;
 
+use ::engine::cache::TextureCache;
 use ::engine::context::Context;
+use ::engine::entities::Entity;
 use ::engine::events::Events;
-use ::engine::scene::Scene;
+use ::engine::scene::{DefaultScene, FrameTimer, Scene};
 use ::engine::text::Text;
 
 pub struct Window<'window> {
 
     pub width: u32,
     pub height: u32,
+    pub context: Context<'window>,
 
     title: String,
 
-    context: Context<'window>,
-    scenes: collections::HashMap<&'static str, Box<Scene>>,
+    scenes: HashMap<&'static str, Box<Scene>>,
     current_scene: Box<Scene>,
-    frame_timer: ::engine::scene::FrameTimer,
-    fps_texture: Option<::engine::text::Text>
+    fps_texture: Option<::engine::text::Text>,
+    frame_timer: FrameTimer
 }
 
 impl<'window> Window<'window> {
@@ -46,6 +48,8 @@ impl<'window> Window<'window> {
         .accelerated()
         .build().unwrap();
 
+        let texture_cache = TextureCache::new();
+
         let mut timer = context.timer().unwrap();
 
         let interval = 1_000 / 60;
@@ -53,7 +57,7 @@ impl<'window> Window<'window> {
         let mut last_second = timer.ticks();
         let mut fps = 0u32;
 
-        let frame_timer = ::engine::scene::FrameTimer::new(
+        let frame_timer = FrameTimer::new(
             interval,
             prev,
             last_second,
@@ -67,30 +71,29 @@ impl<'window> Window<'window> {
 
             title: title.to_string(),
 
-            context: ::engine::context::Context::new(
+            context: Context::new(
                 context,
                 image_context,
                 video,
                 renderer,
                 timer,
-                events
+                events,
+                texture_cache
             ),
             frame_timer: frame_timer,
-            scenes: collections::HashMap::new(),
-            current_scene: Box::new(::engine::scene::DefaultScene::new()),
-            fps_texture: None
+            fps_texture: None,
+            scenes: HashMap::new(),
+            current_scene: Box::new(DefaultScene::new())
         }
     }
 
     pub fn init(&mut self) {
-        self.current_scene.init(&mut self.context.renderer);
+        self.current_scene.init(&mut self.context);
         
-        let fps_texture = ::engine::text::Text::new("0", 50, 50, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf",  self.current_scene.get_bounds());
+        let mut fps_texture = ::engine::text::Text::new("0", 10, 800-48, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf", self.current_scene.get_bounds());
                 
-        self.current_scene.add_entity(Box::new(fps_texture);
-        
+        fps_texture.init(&mut self.context);
         self.fps_texture = Some(fps_texture);
-          
     }
 
     pub fn process(&mut self) -> bool {
@@ -99,7 +102,7 @@ impl<'window> Window<'window> {
         self.current_scene.process(&mut self.context, self.frame_timer.elapsed);
         
         match self.fps_texture {
-            Some(ref fps_texture) =>  fps_texture.set_text(self.frame_timer.fps.to_string()),
+            Some(ref mut fps_texture) => fps_texture.set_text(self.frame_timer.last_fps.to_string()),
             _ => ()
         }
 
@@ -110,7 +113,12 @@ impl<'window> Window<'window> {
         match self.frame_cap() {
             true => {
                 match self.current_scene.render(&mut self.context, self.frame_timer.elapsed) {
-                    ::engine::scene::SceneResult::None => self.context.renderer.present(),
+                    ::engine::scene::SceneResult::None => {
+                       if let Some(ref mut fps) = self.fps_texture {
+                            fps.render(&self.context.texture_cache, &mut self.context.renderer, self.frame_timer.elapsed);
+                       }
+                        self.context.renderer.present();
+                    },
                     ::engine::scene::SceneResult::Quit => { self.context.event_handler.quit = true; },
                     _ => ()
                 }
@@ -137,7 +145,8 @@ impl<'window> Window<'window> {
         frame_timer.elapsed = elapsed;
 
         if now - frame_timer.last_second > 1_000 {
-            println!("FPS: {}", frame_timer.fps);
+            frame_timer.last_fps = frame_timer.fps;
+            println!("FPS: {}", frame_timer.last_fps);
             frame_timer.last_second = now;
             frame_timer.fps = 0;
         }
