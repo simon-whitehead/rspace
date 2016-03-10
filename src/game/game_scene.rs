@@ -22,9 +22,9 @@ impl GameScene {
 }
 
 impl Scene for GameScene {
-    fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
+    fn init(&mut self, context: &mut Context) {
         for entity in &mut self.entities {
-            entity.init(renderer);
+            entity.init(context);
         }
     }
 
@@ -39,7 +39,7 @@ impl Scene for GameScene {
         context.renderer.clear();
 
         for entity in &mut self.entities {
-            entity.render(&mut context.renderer, elapsed);
+            entity.render(&context.texture_cache, &mut context.renderer, elapsed);
         }
 
         SceneResult::None

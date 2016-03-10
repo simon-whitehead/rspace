@@ -5,37 +5,45 @@ extern crate sdl2_image;
 use std::fs;
 use std::path::Path;
 
-use sdl2::render::{Texture, TextureQuery};
+use sdl2::rect::Rect;
+use sdl2::render::{Renderer, Texture, TextureQuery};
 use sdl2_image::LoadTexture;
 
+use ::engine::cache::{TextureCache, AssetCacheResult};
+use ::engine::context::Context;
 use ::engine::entities::Entity;
+use ::engine::events::Events;
 
-pub struct FrameAnimatedSprite<'sprite> {
+/// FrameAnimatedSprite represents a sprite that animates via
+/// frames stored as individual files.
+pub struct FrameAnimatedSprite {
     top: i32,
     left: i32,
 
     width: u32,
     height: u32,
     
-    frame_path: &'sprite Path,
-    frames: Vec<Texture>,
+    cache: AssetCacheResult,
     frame_delay: f64,
     current_time: f64,
 
-    bounds: sdl2::rect::Rect
+    bounds: Rect
 }
 
-impl<'sprite> FrameAnimatedSprite<'sprite> {
-    pub fn new(path: &'sprite Path, frame_delay: f64, bounds: sdl2::rect::Rect) -> FrameAnimatedSprite {
+impl FrameAnimatedSprite {
+    pub fn new(position: (i32, i32),
+               frame_delay: f64,
+               bounds: Rect,
+               cache_result: AssetCacheResult) -> FrameAnimatedSprite {
+
         FrameAnimatedSprite {
-            top: 0i32,
-            left: 0i32,
+            top: position.0,
+            left: position.1,
 
             width: 0,
             height: 0,
 
-            frame_path: path,
-            frames: Vec::new(),
+            cache: cache_result,
             frame_delay: frame_delay,
             current_time: 0f64,
 
@@ -44,34 +52,30 @@ impl<'sprite> FrameAnimatedSprite<'sprite> {
     }
 }
 
-impl<'sprite> Entity for FrameAnimatedSprite<'sprite> {
-    fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
-        let mut frames = Vec::new();
-        let files = fs::read_dir(self.frame_path).unwrap();
+impl Entity for FrameAnimatedSprite {
+    fn init(&mut self, context: &mut Context) {
+        // Grab a sample frame from the cache to query
+        let frames = &context.texture_cache.assets[self.cache.index as usize];
 
-        for file in files {
-            let path = file.unwrap().path();
-            frames.push(renderer.load_texture(path.as_path()).unwrap());
-        }
+        let TextureQuery { width, height, .. } = frames.query();
 
-        let TextureQuery { width, height, .. } = frames.first().unwrap().query();
-
+        // Store the width and height of the texture
         self.width = width;
         self.height = height;
-
-        self.frames = frames;
     }
 
-    fn render(&mut self, renderer: &mut sdl2::render::Renderer, elapsed: f64) {
+    fn render(&mut self, texture_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
+        // Calculate the frame offset we are currently rendering
         let current_frame =
-            (self.current_time / self.frame_delay) as usize % self.frames.len();
+            (self.current_time / self.frame_delay) as usize % self.cache.length as usize;
 
-        let sprite = &self.frames[current_frame];
+        // Grab the frame from the texture cache, with the cache offset applied
+        let sprite = &texture_cache.assets[self.cache.index as usize + current_frame as usize];
 
         renderer.copy(sprite, Some(self.bounds), Some(sdl2::rect::Rect::new(self.left, self.top, self.width, self.height)));
     }
 
-    fn process(&mut self, event_handler: &mut ::engine::events::Events, elapsed: f64) {
+    fn process(&mut self, event_handler: &mut Events, elapsed: f64) {
         // Update the time
         self.current_time += elapsed;
     }

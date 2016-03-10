@@ -40,8 +40,8 @@ impl Player {
 }
 
 impl Entity for Player {
-    fn init(&mut self, renderer: &mut sdl2::render::Renderer) {
-        let tex = renderer.load_texture(Path::new("assets/player/ship.png")).unwrap();
+    fn init(&mut self, context: &mut Context) {
+        let tex = context.renderer.load_texture(Path::new("assets/player/ship.png")).unwrap();
 
         let TextureQuery { width, height, .. } = tex.query();
 
@@ -51,7 +51,7 @@ impl Entity for Player {
         self.texture = Some(tex);
     }
 
-    fn render(&mut self, renderer: &mut sdl2::render::Renderer, elapsed: f64) {
+    fn render(&mut self, asset_cache: &::engine::cache::TextureCache, renderer: &mut sdl2::render::Renderer, elapsed: f64) {
         match self.texture {
             Some(ref tex) => renderer.copy(tex, Some(self.bounds), Some(sdl2::rect::Rect::new(self.left, self.top, self.width, self.height))),
             _ => ()

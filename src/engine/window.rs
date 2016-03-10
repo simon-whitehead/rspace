@@ -15,10 +15,10 @@ pub struct Window<'window> {
 
     pub width: u32,
     pub height: u32,
+    pub context: Context<'window>,
 
     title: String,
 
-    context: Context<'window>,
     scenes: collections::HashMap<&'static str, Box<Scene>>,
     current_scene: Box<Scene>,
     frame_timer: ::engine::scene::FrameTimer
@@ -41,6 +41,8 @@ impl<'window> Window<'window> {
         let renderer = window.renderer()
         .accelerated()
         .build().unwrap();
+
+        let texture_cache = ::engine::cache::TextureCache::new();
 
         let mut timer = context.timer().unwrap();
 
@@ -69,7 +71,8 @@ impl<'window> Window<'window> {
                 video,
                 renderer,
                 timer,
-                events
+                events,
+                texture_cache
             ),
             frame_timer: frame_timer,
             scenes: collections::HashMap::new(),
@@ -78,7 +81,7 @@ impl<'window> Window<'window> {
     }
 
     pub fn init(&mut self) {
-        self.current_scene.init(&mut self.context.renderer);
+        self.current_scene.init(&mut self.context);
     }
 
     pub fn process(&mut self) -> bool {
