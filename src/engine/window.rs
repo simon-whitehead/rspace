@@ -90,7 +90,7 @@ impl<'window> Window<'window> {
     pub fn init(&mut self) {
         self.current_scene.init(&mut self.context);
         
-        let mut fps_texture = ::engine::text::Text::new("0", 10, 800-48, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf", self.current_scene.get_bounds());
+        let mut fps_texture = Text::new("0", 10, 800-48, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf", self.current_scene.get_bounds());
                 
         fps_texture.init(&mut self.context);
         self.fps_texture = Some(fps_texture);
