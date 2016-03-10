@@ -17,11 +17,9 @@ fn main() {
     let mut player = game::Player::new(scene.get_bounds());
 
     let mut explosion = engine::entities::FrameAnimatedSprite::new(Path::new("assets/explosion/large/"), 0.1, scene.get_bounds());
-    let mut text = engine::text::Text::new("Welcome to RSPace", 50, 50, 24, Color::RGBA(255, 0, 0, 255), Path::new("assets/fonts/Lato-Thin.ttf"), scene.get_bounds());
     
     scene.add_entity(Box::new(player));
     scene.add_entity(Box::new(explosion));
-    scene.add_entity(Box::new(text));
 
     window.set_scene(Box::new(scene));
 

@@ -67,4 +67,8 @@ impl<'text> Entity for Text<'text> {
     fn process(&mut self, event_handler: &mut ::engine::events::Events, elapsed: f64) {
          
     }
+    
+    pub fn set_text(&mut self, text: String) {
+        self.text = text.to_string();
+    }
 }

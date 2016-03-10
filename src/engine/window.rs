@@ -1,8 +1,10 @@
 extern crate sdl2;
 extern crate sdl2_image;
+extern crate sdl2_ttf;
 
 use std::collections;
 
+use std::path::Path;
 use sdl2::pixels::Color;
 
 use sdl2_image::LoadTexture;
@@ -10,6 +12,7 @@ use sdl2_image::LoadTexture;
 use ::engine::context::Context;
 use ::engine::events::Events;
 use ::engine::scene::Scene;
+use ::engine::text::Text;
 
 pub struct Window<'window> {
 
@@ -21,7 +24,8 @@ pub struct Window<'window> {
     context: Context<'window>,
     scenes: collections::HashMap<&'static str, Box<Scene>>,
     current_scene: Box<Scene>,
-    frame_timer: ::engine::scene::FrameTimer
+    frame_timer: ::engine::scene::FrameTimer,
+    fps_texture: Option<::engine::text::Text>
 }
 
 impl<'window> Window<'window> {
@@ -73,18 +77,30 @@ impl<'window> Window<'window> {
             ),
             frame_timer: frame_timer,
             scenes: collections::HashMap::new(),
-            current_scene: Box::new(::engine::scene::DefaultScene::new())
+            current_scene: Box::new(::engine::scene::DefaultScene::new()),
+            fps_texture: None
         }
     }
 
     pub fn init(&mut self) {
         self.current_scene.init(&mut self.context.renderer);
+        
+        let fps_texture = ::engine::text::Text::new("0", 50, 50, 24, Color::RGBA(255, 0, 0, 255), Path::new("assets/fonts/Lato-Thin.ttf"),  self.current_scene.get_bounds());
+                
+        self.current_scene.add_entity(Box::new(fps_texture));
+        
+        self.fps_texture = Some(fps_texture);
     }
 
     pub fn process(&mut self) -> bool {
         self.context.event_handler.pump();
 
         self.current_scene.process(&mut self.context, self.frame_timer.elapsed);
+        
+        match self.fps_texture {
+            Some(ref fps_texture) =>  fps_texture.set_text(self.frame_timer.fps),
+            _ => ()
+        }
 
         !(self.context.event_handler.quit || self.context.event_handler.key_pressed(sdl2::keyboard::Keycode::Escape))
     }
