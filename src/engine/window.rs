@@ -26,7 +26,7 @@ pub struct Window<'window> {
 
     scenes: HashMap<&'static str, Box<Scene>>,
     current_scene: Box<Scene>,
-    fps_texture: Option<::engine::text::Text>,
+    fps: Option<::engine::text::Text>,
     frame_timer: FrameTimer
 }
 
@@ -81,7 +81,7 @@ impl<'window> Window<'window> {
                 texture_cache
             ),
             frame_timer: frame_timer,
-            fps_texture: None,
+            fps: None,
             scenes: HashMap::new(),
             current_scene: Box::new(DefaultScene::new())
         }
@@ -90,10 +90,11 @@ impl<'window> Window<'window> {
     pub fn init(&mut self) {
         self.current_scene.init(&mut self.context);
         
-        let mut fps_texture = Text::new("0", 10, 800-48, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf", self.current_scene.get_bounds());
+        // Initialize and store a 
+        let mut fps = Text::new("0", 10, 800-48, 24, Color::RGBA(255, 0, 0, 255), "assets/fonts/Lato-Thin.ttf", self.current_scene.get_bounds());
                 
-        fps_texture.init(&mut self.context);
-        self.fps_texture = Some(fps_texture);
+        fps.init(&mut self.context);
+        self.fps = Some(fps);
     }
 
     pub fn process(&mut self) -> bool {
@@ -101,8 +102,8 @@ impl<'window> Window<'window> {
 
         self.current_scene.process(&mut self.context, self.frame_timer.elapsed);
         
-        if let Some(ref mut fps_texture) = self.fps_texture {
-            fps_texture.set_text(self.frame_timer.last_fps.to_string());
+        if let Some(ref mut fps) = self.fps {
+            fps.set_text(self.frame_timer.last_fps.to_string());
         }
 
         !(self.context.event_handler.quit || self.context.event_handler.key_pressed(sdl2::keyboard::Keycode::Escape))
@@ -113,7 +114,7 @@ impl<'window> Window<'window> {
             true => {
                 match self.current_scene.render(&mut self.context, self.frame_timer.elapsed) {
                     ::engine::scene::SceneResult::None => {
-                       if let Some(ref mut fps) = self.fps_texture {
+                       if let Some(ref mut fps) = self.fps {
                             fps.render(&self.context.texture_cache, &mut self.context.renderer, self.frame_timer.elapsed);
                        }
                         self.context.renderer.present();
