@@ -1,6 +1,7 @@
 
 extern crate sdl2;
 extern crate sdl2_image;
+extern crate sdl2_ttf;
 
 use engine::entities::FrameAnimatedSprite;
 use engine::scene::Scene;

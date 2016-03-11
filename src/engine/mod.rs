@@ -9,6 +9,7 @@ pub mod events;
 pub mod helpers;
 pub mod scene;
 pub mod window;
+pub mod text;
 
 pub mod cache {
     pub use engine::cache_result::AssetCacheResult;
