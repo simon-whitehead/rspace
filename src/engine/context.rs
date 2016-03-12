@@ -6,6 +6,7 @@ use sdl2::TimerSubsystem;
 use sdl2::VideoSubsystem;
 use sdl2::render::Renderer;
 use sdl2_image::Sdl2ImageContext;
+use sdl2_ttf::Sdl2TtfContext;
 
 use ::engine::events::Events;
 use ::engine::cache::TextureCache;
@@ -15,6 +16,7 @@ pub struct Context<'window> {
     pub renderer: Renderer<'window>,
     pub event_handler: Events,
     pub texture_cache: TextureCache,
+    pub ttf_context: Sdl2TtfContext,
 
     context: Sdl,
     image_context: Sdl2ImageContext,
@@ -24,6 +26,7 @@ pub struct Context<'window> {
 impl<'window> Context<'window> {
     pub fn new(sdl_context: Sdl,
                sdl_image_context: Sdl2ImageContext,
+               sdl_ttf_context: Sdl2TtfContext,
                sdl_video: VideoSubsystem,
                sdl_renderer: Renderer<'window>,
                sdl_timer: TimerSubsystem,
@@ -33,6 +36,7 @@ impl<'window> Context<'window> {
         Context {
             context: sdl_context,
             image_context: sdl_image_context,
+            ttf_context: sdl_ttf_context,
             video: sdl_video,
             renderer: sdl_renderer,
             timer: sdl_timer,

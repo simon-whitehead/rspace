@@ -34,6 +34,7 @@ impl<'window> Window<'window> {
         
         let context = sdl2::init().unwrap();
         let image_context = sdl2_image::init(sdl2_image::INIT_PNG).unwrap();
+        let ttf_context = sdl2_ttf::init().unwrap();
 
         let video = context.video().unwrap();
 
@@ -73,6 +74,7 @@ impl<'window> Window<'window> {
             context: Context::new(
                 context,
                 image_context,
+                ttf_context,
                 video,
                 renderer,
                 timer,
@@ -118,7 +120,7 @@ impl<'window> Window<'window> {
                     ::engine::scene::SceneResult::None => {
                         // Render the FPS on top of the scene
                         if let Some(ref mut fps) = self.fps {
-                            fps.render(&self.context.texture_cache, &mut self.context.renderer, self.frame_timer.elapsed);
+                            fps.render(&mut self.context.renderer, self.frame_timer.elapsed);
                         }
                         self.context.renderer.present();
                     },
