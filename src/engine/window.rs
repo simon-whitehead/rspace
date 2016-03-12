@@ -136,6 +136,8 @@ impl<'window> Window<'window> {
         let delta = now - frame_timer.prev;
         let elapsed = delta as f64 / 1_000.0;
 
+        frame_timer.ticks = now;
+
         // Wait until 1/60th of a second has passed since we last called this
         if delta < frame_timer.interval {
             self.context.timer.delay(frame_timer.interval - delta);

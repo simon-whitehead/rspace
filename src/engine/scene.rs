@@ -64,7 +64,8 @@ pub struct FrameTimer {
     pub prev: u32,
     pub last_second: u32,
 
-    pub last_fps: u32   // The last captured FPS we had
+    pub last_fps: u32,   // The last captured FPS we had
+    pub ticks: u32
 }
 
 impl FrameTimer {
@@ -81,7 +82,8 @@ impl FrameTimer {
             fps: fps,
             elapsed: 0f64,
 
-            last_fps: 0
+            last_fps: 0,
+            ticks: 0
         }
     }
 }

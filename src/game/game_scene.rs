@@ -1,9 +1,14 @@
+extern crate rand;
+
 extern crate sdl2;
 extern crate sdl2_image;
+
+use game::game_scene::rand::Rng;
 
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 
+use engine::cache::AssetCacheResult;
 use engine::context::Context;
 use engine::entities::FrameAnimatedSprite;
 use engine::scene::{Scene, SceneResult};
@@ -14,7 +19,11 @@ use ::game::player::Player;
 pub struct GameScene {
     bounds: Rect,
     player: Player,
-    explosions: Vec<Explosion>
+    explosions: Vec<Explosion>,
+    explosion_interval: u32,
+    last_explosion_interval: u32,
+
+    cache: Option<AssetCacheResult>
 }
 
 impl GameScene {
@@ -23,7 +32,11 @@ impl GameScene {
         GameScene {
             bounds: bounds,
             player: Player::new(bounds),
-            explosions: Vec::new()
+            explosions: Vec::new(),
+            explosion_interval: 1_000,
+            last_explosion_interval: 0,
+
+            cache: None
         }
     }
 }
@@ -33,16 +46,7 @@ impl Scene for GameScene {
         self.player.init(context);
 
         // Initialize 5 explosions for the screen
-        let cache_result = context.texture_cache.precache(&context.renderer, "assets/explosion/large/");
-
-        let bounds = self.get_bounds();
-
-        for i in 0..5 {
-            let mut sprite = FrameAnimatedSprite::new(0.1, bounds, cache_result.clone());
-            sprite.init(context);
-
-            self.explosions.push(Explosion::new((i * 60, i * 60), sprite));
-        }
+        self.cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/large/"));
     }
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
@@ -65,6 +69,24 @@ impl Scene for GameScene {
     }
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
+        // Are we ready for another explosion?
+        let time = context.timer.ticks() - self.last_explosion_interval;
+        if time > self.explosion_interval {
+            // Add a new explosion to the scene
+            if let Some(ref cache) = self.cache {
+                let mut rng = rand::thread_rng();
+                let x = rng.gen_range(1, 400);
+                let y = rng.gen_range(1, 300);
+                let bounds = self.get_bounds();
+                let mut sprite = FrameAnimatedSprite::new(0.1, bounds, (*cache).clone());
+                sprite.init(context);
+
+                self.explosions.push(Explosion::new((x, y), sprite));
+
+                self.last_explosion_interval = context.timer.ticks();
+            }
+        }
+
         for explosion in &mut self.explosions {
             explosion.process(elapsed);
         }

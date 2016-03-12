@@ -18,7 +18,7 @@ pub struct Context<'window> {
 
     context: Sdl,
     image_context: Sdl2ImageContext,
-    video: VideoSubsystem
+    video: VideoSubsystem,
 }
 
 impl<'window> Context<'window> {
