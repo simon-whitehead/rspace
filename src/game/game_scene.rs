@@ -8,12 +8,13 @@ use engine::context::Context;
 use engine::entities::FrameAnimatedSprite;
 use engine::scene::{Scene, SceneResult};
 
+use ::game::explosion::{Explosion, ExplosionResult};
 use ::game::player::Player;
 
 pub struct GameScene {
     bounds: Rect,
     player: Player,
-    explosions: Vec<FrameAnimatedSprite>
+    explosions: Vec<Explosion>
 }
 
 impl GameScene {
@@ -37,9 +38,10 @@ impl Scene for GameScene {
         let bounds = self.get_bounds();
 
         for i in 0..5 {
-            let mut explosion = FrameAnimatedSprite::new((i * 60, i * 60), 0.1, bounds, cache_result.clone());
-            explosion.init(context);
-            self.explosions.push(explosion);
+            let mut sprite = FrameAnimatedSprite::new(0.1, bounds, cache_result.clone());
+            sprite.init(context);
+
+            self.explosions.push(Explosion::new((i * 60, i * 60), sprite));
         }
     }
 
@@ -63,11 +65,14 @@ impl Scene for GameScene {
     }
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-        self.player.process(&mut context.event_handler, elapsed);
-
         for explosion in &mut self.explosions {
-            explosion.process(&mut context.event_handler, elapsed);
+            explosion.process(elapsed);
         }
+
+        // Keep only the explosions that haven't finished exploding
+        self.explosions.retain(|explosion| !explosion.deleted);
+
+        self.player.process(&mut context.event_handler, elapsed);
         
         SceneResult::None
     }

@@ -12,7 +12,7 @@ use ::engine::cache::AssetCacheResult;
 
 pub struct TextureCache {
     pub assets: Vec<Texture>,
-    index: usize
+    index: u32
 }
 
 /// TextureCache holds references to assets in a Vector

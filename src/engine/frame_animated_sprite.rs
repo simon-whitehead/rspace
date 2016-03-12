@@ -14,13 +14,11 @@ use ::engine::events::Events;
 /// FrameAnimatedSprite represents a sprite that animates via
 /// frames stored as individual files.
 pub struct FrameAnimatedSprite {
-    top: i32,
-    left: i32,
+    pub width: u32,
+    pub height: u32,
+    pub current_frame: u32,
+    pub cache: AssetCacheResult,
 
-    width: u32,
-    height: u32,
-    
-    cache: AssetCacheResult,
     frame_delay: f64,
     current_time: f64,
 
@@ -28,19 +26,16 @@ pub struct FrameAnimatedSprite {
 }
 
 impl FrameAnimatedSprite {
-    pub fn new(position: (i32, i32),
-               frame_delay: f64,
+    pub fn new(frame_delay: f64,
                bounds: Rect,
                cache_result: AssetCacheResult) -> FrameAnimatedSprite {
 
         FrameAnimatedSprite {
-            left: position.0,
-            top: position.1,
-
             width: 0,
             height: 0,
 
             cache: cache_result,
+            current_frame: 0,
             frame_delay: frame_delay,
             current_time: 0f64,
 
@@ -59,19 +54,21 @@ impl FrameAnimatedSprite {
         self.height = height;
     }
 
-    pub fn render(&mut self, texture_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
-        // Calculate the frame offset we are currently rendering
-        let current_frame =
-            (self.current_time / self.frame_delay) as usize % self.cache.length as usize;
-
+    pub fn render(&mut self, position: (i32, i32), texture_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
         // Grab the frame from the texture cache, with the cache offset applied
-        let sprite = &texture_cache.assets[self.cache.index as usize + current_frame as usize];
+        let frame_index = self.cache.index + self.current_frame;
+        let sprite = &texture_cache.assets[frame_index as usize];
 
-        renderer.copy(sprite, Some(self.bounds), Some(Rect::new(self.left, self.top, self.width, self.height)));
+        renderer.copy(sprite, Some(self.bounds), Some(Rect::new(position.0, position.1, self.width, self.height)));
     }
 
-    pub fn process(&mut self, event_handler: &mut Events, elapsed: f64) {
+    pub fn process(&mut self, elapsed: f64) {
         // Update the time
         self.current_time += elapsed;
+
+        // Calculate the frame offset we are currently rendering
+        self.current_frame =
+            ((self.current_time / self.frame_delay) % self.cache.length as f64) as u32;
+
     }
 }
