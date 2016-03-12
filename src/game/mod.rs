@@ -1,4 +1,5 @@
 
+mod bullet;
 mod explosion;
 mod game_scene;
 mod player;

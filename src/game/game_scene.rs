@@ -14,8 +14,9 @@ use engine::entities::FrameAnimatedSprite;
 use engine::scene::{Scene, SceneResult};
 use engine::text::Text;
 
+use ::game::bullet::Bullet;
 use ::game::explosion::{Explosion, ExplosionResult};
-use ::game::player::Player;
+use ::game::player::{Player, PlayerProcessResult};
 
 pub struct GameScene {
     bounds: Rect,
@@ -24,6 +25,8 @@ pub struct GameScene {
     explosion_interval: u32,
     last_explosion_interval: u32,
     explosion_counter: Option<::engine::text::Text>,
+
+    bullets: Vec<Bullet>,
 
     cache: Option<AssetCacheResult>
 }
@@ -38,6 +41,8 @@ impl GameScene {
             explosion_interval: 1_000,
             last_explosion_interval: 0,
             explosion_counter: None,
+
+            bullets: Vec::new(),
 
             cache: None
         }
@@ -73,6 +78,10 @@ impl Scene for GameScene {
             explosion.render(&context.texture_cache, &mut context.renderer, elapsed);
         }
 
+        for bullet in &mut self.bullets {
+            bullet.render(&mut context.renderer);
+        }
+
         if let Some(ref mut explosion_counter) = self.explosion_counter {
             explosion_counter.render(&mut context.renderer, elapsed);
         }
@@ -81,36 +90,43 @@ impl Scene for GameScene {
     }
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-        // Are we ready for another explosion?
-        let time = context.timer.ticks() - self.last_explosion_interval;
-        if time > self.explosion_interval {
-            // Add a new explosion to the scene
-            if let Some(ref cache) = self.cache {
-                let mut rng = rand::thread_rng();
-                let x = rng.gen_range(1, 400);
-                let y = rng.gen_range(1, 300);
-                let bounds = self.get_bounds();
-                let mut sprite = FrameAnimatedSprite::new(0.1, bounds, (*cache).clone());
-                sprite.init(context);
 
-                self.explosions.push(Explosion::new((x, y), sprite));
-
-                self.last_explosion_interval = context.timer.ticks();
-            }
-        }
+        let bounds = self.get_bounds();
 
         for explosion in &mut self.explosions {
             explosion.process(elapsed);
         }
 
+        for bullet in &mut self.bullets {
+            bullet.process();
+
+            // Spawn an explosion at the edge of the screen where the bullet died
+            if bullet.deleted {
+                if let Some(ref cache) = self.cache {
+                    let mut sprite = FrameAnimatedSprite::new(0.1, bounds, (*cache).clone());
+                    sprite.init(context);
+
+                    let x = bullet.x - sprite.width as i32 / 2;
+                    let y = bullet.y - (sprite.height as i32 / 2) + sprite.height as i32 / 8;
+                    self.explosions.push(Explosion::new((x, y), sprite));
+                }
+            }
+        }
+
         // Keep only the explosions that haven't finished exploding
         self.explosions.retain(|explosion| !explosion.deleted);
+
+        // Keep only the bullets still on the screen
+        self.bullets.retain(|bullet| !bullet.deleted);
 
         if let Some(ref mut explosion_counter) = self.explosion_counter {
             explosion_counter.set_text(format!("Active explosions: {}", self.explosions.len()));
         }
 
-        self.player.process(&mut context.event_handler, elapsed);
+        match self.player.process(&mut context.event_handler, elapsed, context.timer.ticks()) {
+            PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
+            _ => ()
+        }
         
         SceneResult::None
     }
