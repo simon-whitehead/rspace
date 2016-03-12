@@ -11,7 +11,6 @@ use sdl2_image::LoadTexture;
 
 use ::engine::cache::TextureCache;
 use ::engine::context::Context;
-use ::engine::entity::Entity;
 use ::engine::events::Events;
 use ::engine::scene::{Scene, SceneResult};
 use ::engine::window::Window;
@@ -40,10 +39,8 @@ impl Player {
             texture: None
         }
     }
-}
 
-impl Entity for Player {
-    fn init(&mut self, context: &mut Context) {
+    pub fn init(&mut self, context: &mut Context) {
         let tex = context.renderer.load_texture(Path::new("assets/player/ship.png")).unwrap();
 
         let TextureQuery { width, height, .. } = tex.query();
@@ -54,14 +51,14 @@ impl Entity for Player {
         self.texture = Some(tex);
     }
 
-    fn render(&mut self, asset_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
+    pub fn render(&mut self, asset_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
         match self.texture {
             Some(ref tex) => renderer.copy(tex, Some(self.bounds), Some(Rect::new(self.left, self.top, self.width, self.height))),
             _ => ()
         }
     }
 
-    fn process(&mut self, events: &mut Events, elapsed: f64) {
+    pub fn process(&mut self, events: &mut Events, elapsed: f64) {
         if events.key_pressed(::sdl2::keyboard::Keycode::Up) {
             self.top = ::engine::helpers::clamp_min(self.top, -10, 0);
         }

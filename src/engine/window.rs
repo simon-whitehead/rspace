@@ -11,7 +11,6 @@ use sdl2_image::LoadTexture;
 
 use ::engine::cache::TextureCache;
 use ::engine::context::Context;
-use ::engine::entities::Entity;
 use ::engine::events::Events;
 use ::engine::scene::{DefaultScene, FrameTimer, Scene};
 use ::engine::text::Text;

@@ -9,7 +9,6 @@ use sdl2::render::{Renderer, Texture, TextureQuery};
 
 use ::engine::cache::{TextureCache, AssetCacheResult};
 use ::engine::context::Context;
-use ::engine::entities::Entity;
 use ::engine::events::Events;
 
 /// FrameAnimatedSprite represents a sprite that animates via
@@ -48,10 +47,8 @@ impl FrameAnimatedSprite {
             bounds: bounds
         }
     }
-}
 
-impl Entity for FrameAnimatedSprite {
-    fn init(&mut self, context: &mut Context) {
+    pub fn init(&mut self, context: &mut Context) {
         // Grab a sample frame from the cache to query
         let frames = &context.texture_cache.assets[self.cache.index as usize];
 
@@ -62,7 +59,7 @@ impl Entity for FrameAnimatedSprite {
         self.height = height;
     }
 
-    fn render(&mut self, texture_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
+    pub fn render(&mut self, texture_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
         // Calculate the frame offset we are currently rendering
         let current_frame =
             (self.current_time / self.frame_delay) as usize % self.cache.length as usize;
@@ -73,7 +70,7 @@ impl Entity for FrameAnimatedSprite {
         renderer.copy(sprite, Some(self.bounds), Some(Rect::new(self.left, self.top, self.width, self.height)));
     }
 
-    fn process(&mut self, event_handler: &mut Events, elapsed: f64) {
+    pub fn process(&mut self, event_handler: &mut Events, elapsed: f64) {
         // Update the time
         self.current_time += elapsed;
     }

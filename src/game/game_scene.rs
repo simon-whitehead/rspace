@@ -5,27 +5,41 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 
 use engine::context::Context;
-use engine::entities::Entity;
+use engine::entities::FrameAnimatedSprite;
 use engine::scene::{Scene, SceneResult};
+
+use ::game::player::Player;
 
 pub struct GameScene {
     bounds: Rect,
-    entities: Vec<Box<Entity>>
+    player: Player,
+    explosions: Vec<FrameAnimatedSprite>
 }
 
 impl GameScene {
     pub fn new(width: u32, height: u32) -> GameScene {
+        let bounds = Rect::new(0, 0, width, height);
         GameScene {
-            bounds: Rect::new(0, 0, width, height),
-            entities: Vec::new()
+            bounds: bounds,
+            player: Player::new(bounds),
+            explosions: Vec::new()
         }
     }
 }
 
 impl Scene for GameScene {
     fn init(&mut self, context: &mut Context) {
-        for entity in &mut self.entities {
-            entity.init(context);
+        self.player.init(context);
+
+        // Initialize 5 explosions for the screen
+        let cache_result = context.texture_cache.precache(&context.renderer, "assets/explosion/large/");
+
+        let bounds = self.get_bounds();
+
+        for i in 0..5 {
+            let mut explosion = FrameAnimatedSprite::new((i * 60, i * 60), 0.1, bounds, cache_result.clone());
+            explosion.init(context);
+            self.explosions.push(explosion);
         }
     }
 
@@ -39,22 +53,23 @@ impl Scene for GameScene {
         context.renderer.set_draw_color(Color::RGB(0, 0, 0));
         context.renderer.clear();
 
-        for entity in &mut self.entities {
-            entity.render(&context.texture_cache, &mut context.renderer, elapsed);
+        self.player.render(&context.texture_cache, &mut context.renderer, elapsed);
+
+        for explosion in &mut self.explosions {
+            explosion.render(&context.texture_cache, &mut context.renderer, elapsed);
         }
 
         SceneResult::None
     }
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-        for entity in &mut self.entities {
-            entity.process(&mut context.event_handler, elapsed);
-        }
-        SceneResult::None
-    }
+        self.player.process(&mut context.event_handler, elapsed);
 
-    fn add_entity(&mut self, entity: Box<Entity>) {
-        self.entities.push(entity);
+        for explosion in &mut self.explosions {
+            explosion.process(&mut context.event_handler, elapsed);
+        }
+        
+        SceneResult::None
     }
 
     fn get_bounds(&self) -> Rect {
