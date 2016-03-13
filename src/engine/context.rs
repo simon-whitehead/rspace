@@ -18,6 +18,8 @@ pub struct Context<'window> {
     pub texture_cache: TextureCache,
     pub ttf_context: Sdl2TtfContext,
 
+    pub bounds: sdl2::rect::Rect,
+
     context: Sdl,
     image_context: Sdl2ImageContext,
     video: VideoSubsystem,
@@ -31,7 +33,8 @@ impl<'window> Context<'window> {
                sdl_renderer: Renderer<'window>,
                sdl_timer: TimerSubsystem,
                event_handler: Events,
-               texture_cache: TextureCache) -> Context<'window> {
+               texture_cache: TextureCache,
+               bounds: sdl2::rect::Rect) -> Context<'window> {
 
         Context {
             context: sdl_context,
@@ -41,7 +44,9 @@ impl<'window> Context<'window> {
             renderer: sdl_renderer,
             timer: sdl_timer,
             event_handler: event_handler,
-            texture_cache: texture_cache
+            texture_cache: texture_cache,
+
+            bounds: bounds
         }
     }
 }

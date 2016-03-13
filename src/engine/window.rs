@@ -79,7 +79,8 @@ impl<'window> Window<'window> {
                 renderer,
                 timer,
                 events,
-                texture_cache
+                texture_cache,
+                sdl2::rect::Rect::new(0, 0, width, height)
             ),
             frame_timer: frame_timer,
             fps: None,

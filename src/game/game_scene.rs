@@ -15,6 +15,7 @@ use engine::scene::{Scene, SceneResult};
 use engine::text::Text;
 
 use ::game::bullet::Bullet;
+use ::game::enemies::BasicEnemy;
 use ::game::explosion::{Explosion, ExplosionResult};
 use ::game::player::{Player, PlayerProcessResult};
 
@@ -27,6 +28,8 @@ pub struct GameScene {
     explosion_counter: Option<::engine::text::Text>,
 
     bullets: Vec<Bullet>,
+
+    basic_enemies: Vec<BasicEnemy>,
 
     cache: Option<AssetCacheResult>
 }
@@ -44,6 +47,8 @@ impl GameScene {
 
             bullets: Vec::new(),
 
+            basic_enemies: Vec::new(),
+
             cache: None
         }
     }
@@ -51,6 +56,10 @@ impl GameScene {
 
 impl Scene for GameScene {
     fn init(&mut self, context: &mut Context) {
+        let mut enemy = BasicEnemy::new((350, 50), 100, context.bounds);
+        enemy.init(context);
+        self.basic_enemies.push(enemy);
+
         self.player.init(context);
 
         let mut explosion_counter = Text::new((200, 10), "Active explosions: 0", 24, Color::RGBA(255, 255, 0, 255), "assets/fonts/OpenSans-Bold.ttf", self.get_bounds());
@@ -73,6 +82,10 @@ impl Scene for GameScene {
         context.renderer.clear();
 
         self.player.render(&context.texture_cache, &mut context.renderer, elapsed);
+
+        for enemy in &mut self.basic_enemies {
+            enemy.render(&context.texture_cache, &mut context.renderer, elapsed);
+        }
 
         for explosion in &mut self.explosions {
             explosion.render(&context.texture_cache, &mut context.renderer, elapsed);
