@@ -7,3 +7,4 @@ authors = ["Simon Whitehead <chemnova@gmail.com>"]
 sdl2 = "0.15.0"
 sdl2_image = "1.1.0"
 sdl2_ttf = "0.15.0"
+rand = "0.3.14"

@@ -11,7 +11,6 @@ use sdl2_ttf::{Font, Sdl2TtfContext};
 
 use ::engine::cache::TextureCache;
 use ::engine::context::Context;
-use ::engine::entities::Entity;
 use ::engine::events::Events;
 
 pub struct Text {
@@ -54,23 +53,15 @@ impl Text {
     pub fn set_text(&mut self, text: String) {
         self.text = text.to_string();
     }
-}
 
-impl Entity for Text {
-    fn init(&mut self, context: &mut Context) {
-        // Store an Sdl2TtfContext so that it doesn't go out of scope while the Text
-        // Entity is in scope
-        self.ttf_context = Some(sdl2_ttf::init().unwrap());  
-        
+    pub fn init(&mut self, context: &Context) {
         // Load and store a font
         let font_path = Path::new(self.font_path);
-        if let Some(ref context) = self.ttf_context {
-            let font = context.load_font(&font_path, self.font_size).unwrap();
-            self.font = Some(font);
-        }
+        let font = context.ttf_context.load_font(&font_path, self.font_size).unwrap();
+        self.font = Some(font);
     }
     
-    fn render(&mut self, texture_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
+    pub fn render(&mut self, renderer: &mut Renderer, elapsed: f64) {
         if let Some(ref font) = self.font {
             // Create a surface and texture to render
             let surface = font.render(&self.text[..])
@@ -83,7 +74,7 @@ impl Entity for Text {
         }
     }
      
-    fn process(&mut self, event_handler: &mut Events, elapsed: f64) {
+    pub fn process(&mut self, event_handler: &mut Events, elapsed: f64) {
          
     }
 }

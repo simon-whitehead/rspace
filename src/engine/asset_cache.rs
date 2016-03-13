@@ -1,12 +1,12 @@
 extern crate sdl2;
 
 pub struct AssetCacheResult {
-    pub index: usize,
-    pub length: usize
+    pub index: u32,
+    pub length: u32
 }
 
 impl<'a> AssetCacheResult {
-    pub fn new(index: usize, length: usize) -> AssetCacheResult {
+    pub fn new(index: u32, length: u32) -> AssetCacheResult {
         AssetCacheResult {
             index: index,
             length: length

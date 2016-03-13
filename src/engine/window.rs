@@ -11,7 +11,6 @@ use sdl2_image::LoadTexture;
 
 use ::engine::cache::TextureCache;
 use ::engine::context::Context;
-use ::engine::entities::Entity;
 use ::engine::events::Events;
 use ::engine::scene::{DefaultScene, FrameTimer, Scene};
 use ::engine::text::Text;
@@ -35,6 +34,7 @@ impl<'window> Window<'window> {
         
         let context = sdl2::init().unwrap();
         let image_context = sdl2_image::init(sdl2_image::INIT_PNG).unwrap();
+        let ttf_context = sdl2_ttf::init().unwrap();
 
         let video = context.video().unwrap();
 
@@ -74,6 +74,7 @@ impl<'window> Window<'window> {
             context: Context::new(
                 context,
                 image_context,
+                ttf_context,
                 video,
                 renderer,
                 timer,
@@ -91,7 +92,7 @@ impl<'window> Window<'window> {
         self.current_scene.init(&mut self.context);
         
         // Initialize and store a Text entity that will draw the current FPS
-        let mut fps = Text::new((800-48, 10), "0", 24, Color::RGBA(255, 255, 0, 255), "assets/fonts/Lato-Thin.ttf", self.current_scene.get_bounds());
+        let mut fps = Text::new((800-48, 10), "0", 24, Color::RGBA(255, 255, 0, 255), "assets/fonts/OpenSans-Bold.ttf", self.current_scene.get_bounds());
                 
         fps.init(&mut self.context);
         self.fps = Some(fps);
@@ -119,7 +120,7 @@ impl<'window> Window<'window> {
                     ::engine::scene::SceneResult::None => {
                         // Render the FPS on top of the scene
                         if let Some(ref mut fps) = self.fps {
-                            fps.render(&self.context.texture_cache, &mut self.context.renderer, self.frame_timer.elapsed);
+                            fps.render(&mut self.context.renderer, self.frame_timer.elapsed);
                         }
                         self.context.renderer.present();
                     },
@@ -136,6 +137,8 @@ impl<'window> Window<'window> {
         let now = self.context.timer.ticks();
         let delta = now - frame_timer.prev;
         let elapsed = delta as f64 / 1_000.0;
+
+        frame_timer.ticks = now;
 
         // Wait until 1/60th of a second has passed since we last called this
         if delta < frame_timer.interval {

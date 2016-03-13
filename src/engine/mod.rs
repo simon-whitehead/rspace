@@ -1,5 +1,4 @@
 
-pub mod entity;
 mod frame_animated_sprite;
 mod texture_cache;
 
@@ -17,7 +16,6 @@ pub mod cache {
 }
 
 pub mod entities {
-    pub use engine::entity::Entity;
     pub use engine::frame_animated_sprite::FrameAnimatedSprite;
 }
 

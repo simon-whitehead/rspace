@@ -4,7 +4,6 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 
 use ::engine::context::Context;
-use ::engine::entities::Entity;
 
 pub enum SceneResult {
     None,
@@ -18,21 +17,17 @@ pub trait Scene {
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult;
 
-    fn add_entity(&mut self, entity: Box<Entity>);
-
     fn get_bounds(&self) -> Rect;
 }
 
 pub struct DefaultScene {
-    bounds: Rect,
-    entities: Vec<Box<Entity>>
+    bounds: Rect
 }
 
 impl DefaultScene {
     pub fn new() -> DefaultScene {
         DefaultScene {
-            bounds: Rect::new(0, 0, 0, 0),
-            entities: Vec::new()
+            bounds: Rect::new(0, 0, 0, 0)
         }
     }
 }
@@ -50,22 +45,11 @@ impl Scene for DefaultScene {
         context.renderer.set_draw_color(Color::RGB(0, 153, 204));
         context.renderer.clear();
 
-        for entity in &mut self.entities {
-            entity.render(&context.texture_cache, &mut context.renderer, elapsed);
-        }
-
         SceneResult::None
     }
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-        for entity in &mut self.entities {
-            entity.process(&mut context.event_handler, elapsed);
-        }
         SceneResult::None
-    }
-
-    fn add_entity(&mut self, entity: Box<Entity>) {
-        self.entities.push(entity);
     }
 
     fn get_bounds(&self) -> Rect {
@@ -80,7 +64,8 @@ pub struct FrameTimer {
     pub prev: u32,
     pub last_second: u32,
 
-    pub last_fps: u32   // The last captured FPS we had
+    pub last_fps: u32,   // The last captured FPS we had
+    pub ticks: u32
 }
 
 impl FrameTimer {
@@ -97,7 +82,8 @@ impl FrameTimer {
             fps: fps,
             elapsed: 0f64,
 
-            last_fps: 0
+            last_fps: 0,
+            ticks: 0
         }
     }
 }
