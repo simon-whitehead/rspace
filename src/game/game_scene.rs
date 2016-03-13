@@ -53,7 +53,7 @@ impl Scene for GameScene {
     fn init(&mut self, context: &mut Context) {
         self.player.init(context);
 
-        let mut explosion_counter = Text::new((200, 10), "Active explosions: 0", 24, Color::RGBA(255, 255, 0, 255), "assets/fonts/Lato-Thin.ttf", self.get_bounds());
+        let mut explosion_counter = Text::new((200, 10), "Active explosions: 0", 24, Color::RGBA(255, 255, 0, 255), "assets/fonts/OpenSans-Bold.ttf", self.get_bounds());
                 
         explosion_counter.init(context);
         self.explosion_counter = Some(explosion_counter);
