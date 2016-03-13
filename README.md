@@ -4,7 +4,7 @@ This is a small top-down space shooter written in Rust.
 
 ### Progress GIF
 
-![progress-3](https://cloud.githubusercontent.com/assets/2499070/13726704/e8d65e30-e927-11e5-96b2-41ae3c6f3e10.gif)
+![progress-4](https://cloud.githubusercontent.com/assets/2499070/13728071/fa45de02-e95e-11e5-8aee-9c557f8f104a.gif)
 
 ### Credits
 
