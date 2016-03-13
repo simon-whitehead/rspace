@@ -103,7 +103,7 @@ impl Scene for GameScene {
             // Spawn an explosion at the edge of the screen where the bullet died
             if bullet.deleted {
                 if let Some(ref cache) = self.cache {
-                    let mut sprite = FrameAnimatedSprite::new(0.1, bounds, (*cache).clone());
+                    let mut sprite = FrameAnimatedSprite::new(0.05, bounds, (*cache).clone());
                     sprite.init(context);
 
                     let x = bullet.x - sprite.width as i32 / 2;

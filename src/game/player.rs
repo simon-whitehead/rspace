@@ -48,7 +48,7 @@ impl Player {
             bounds: bounds,
             texture: None,
             
-            shoot_interval: 200,
+            shoot_interval: 100,
             last_shoot_time: 0
         }
     }
