@@ -58,8 +58,8 @@ impl Player {
 
         let TextureQuery { width, height, .. } = tex.query();
 
-        self.width = width >> 1;
-        self.height = height >> 1;
+        self.width = width >> 2;
+        self.height = height >> 2;
 
         self.texture = Some(tex);
     }

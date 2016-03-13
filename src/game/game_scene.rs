@@ -113,15 +113,27 @@ impl Scene for GameScene {
         for bullet in &mut self.bullets {
             bullet.process();
 
-            // Spawn an explosion at the edge of the screen where the bullet died
-            if bullet.deleted {
-                if let Some(ref cache) = self.cache {
-                    let mut sprite = FrameAnimatedSprite::new(0.05, bounds, (*cache).clone());
-                    sprite.init(context);
+            // Check if the bullet hit an enemy
+            for enemy in &mut self.basic_enemies {
+                if enemy.hit_test(bullet.x, bullet.y) {
+                    bullet.deleted = true;
 
-                    let x = bullet.x - sprite.width as i32 / 2;
-                    let y = bullet.y - (sprite.height as i32 / 2) + sprite.height as i32 / 8;
-                    self.explosions.push(Explosion::new((x, y), sprite));
+                    enemy.health_points -= 10;
+
+                    // Explode and die
+                    if enemy.is_dead() {
+                        let start_x = enemy.x + (enemy.width as i32 / 2);
+                        let start_y = enemy.y + (enemy.height as i32 / 2);
+
+                        if let Some(ref cache) = self.cache {
+                            let mut sprite = FrameAnimatedSprite::new(0.05, bounds, (*cache).clone());
+                            sprite.init(context);
+
+                            let x = start_x - sprite.width as i32 / 2;
+                            let y = start_y - (sprite.height as i32 / 2);
+                            self.explosions.push(Explosion::new((x, y), sprite));
+                        }
+                    }
                 }
             }
         }
@@ -131,6 +143,9 @@ impl Scene for GameScene {
 
         // Keep only the bullets still on the screen
         self.bullets.retain(|bullet| !bullet.deleted);
+
+        // Keep only alive enemies
+        self.basic_enemies.retain(|enemy| !enemy.is_dead());
 
         if let Some(ref mut explosion_counter) = self.explosion_counter {
             explosion_counter.set_text(format!("Active explosions: {}", self.explosions.len()));
