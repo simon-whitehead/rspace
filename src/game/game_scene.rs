@@ -64,6 +64,10 @@ impl GameScene {
         for enemy in &mut self.enemies {
             enemy.process(&mut context.event_handler, elapsed, context.timer.ticks());
         }
+
+        // Clear out our enemies and only keep the ones that aren't dead
+        let old_enemies = ::std::mem::replace(&mut self.enemies, vec![]);
+        self.enemies = old_enemies.into_iter().filter(|enemy| !enemy.is_dead()).collect();
     }
 
     // Process each explosion and remove any deleted ones
@@ -110,6 +114,10 @@ impl GameScene {
                 }
             }
         }
+
+        // Clear out our bullets and only keep the ones that aren't deleted
+        let old_bullets = ::std::mem::replace(&mut self.bullets, vec![]);
+        self.bullets = old_bullets.into_iter().filter(|bullet| !bullet.deleted).collect();
     }
 }
 
@@ -176,12 +184,6 @@ impl Scene for GameScene {
 
         // Handle the bullets
         self.process_bullets(context);
-
-        // Keep only the bullets still on the screen
-        self.bullets.retain(|bullet| !bullet.deleted);
-
-        // Keep only alive enemies
-        self.enemies.retain(|enemy| !enemy.is_dead());
 
         if let Some(ref mut explosion_counter) = self.explosion_counter {
             explosion_counter.set_text(format!("Active explosions: {}", self.explosions.len()));
