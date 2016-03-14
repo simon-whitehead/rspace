@@ -9,12 +9,14 @@ use sdl2_image::LoadTexture;
 
 use std::path::Path;
 
-use ::engine::cache::TextureCache;
+use ::engine::cache::{AssetCacheResult, TextureCache};
 use ::engine::context::Context;
+use ::engine::entities::FrameAnimatedSprite;
 use ::engine::events::Events;
 
 use ::game::bullet::Bullet;
 use ::game::enemies::Enemy;
+use ::game::explosion::Explosion;
 
 pub struct BasicEnemy {
     pub x: i32,
@@ -30,6 +32,8 @@ pub struct BasicEnemy {
 
     texture: Option<Texture>,
 
+    explosion_cache: AssetCacheResult,
+
     move_interval: u32,
     last_move_time: u32
 }
@@ -37,7 +41,8 @@ pub struct BasicEnemy {
 impl BasicEnemy {
     pub fn new(position: (i32, i32),
                hp: u32,
-               bounds: Rect) -> BasicEnemy {
+               bounds: Rect,
+               explosion_cache: AssetCacheResult) -> BasicEnemy {
 
         BasicEnemy {
             x: position.0,
@@ -49,6 +54,8 @@ impl BasicEnemy {
             bounds: bounds,
 
             texture: None,
+
+            explosion_cache: explosion_cache,
 
             health_points: hp,
             dead: false,
@@ -86,7 +93,6 @@ impl Enemy for BasicEnemy {
         }
     }
 
-
     fn hit_test(&mut self, x: i32, y: i32) -> bool {
         x > self.x &&
         x < self.x + self.width as i32 &&
@@ -116,5 +122,23 @@ impl Enemy for BasicEnemy {
 
     fn get_height(&self) -> u32 {
         self.height
+    }
+
+    // Generate explosions for this enemy
+    fn explode(&self, context: &mut Context) -> Vec<Explosion> {
+        let mut explosions = Vec::new();
+
+        let bounds = self.bounds;
+        let start_x = self.x + (self.width as i32 / 2);
+        let start_y = self.y + (self.height as i32 / 2);
+
+        let mut sprite = FrameAnimatedSprite::new(0.05, bounds, self.explosion_cache.clone());
+        sprite.init(context);
+
+        let x = start_x - sprite.width as i32 / 2;
+        let y = start_y - (sprite.height as i32 / 2);
+        explosions.push(Explosion::new((x, y), sprite));
+
+        explosions
     }
 }

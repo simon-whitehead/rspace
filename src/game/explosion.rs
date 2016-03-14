@@ -13,6 +13,13 @@ pub enum ExplosionResult {
     Delete
 }
 
+pub enum ExplosionSize {
+    Tiny,
+    Small,
+    Medium,
+    Large
+}
+
 pub struct Explosion {
     pub deleted: bool,
 

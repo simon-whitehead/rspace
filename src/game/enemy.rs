@@ -2,9 +2,11 @@ extern crate sdl2;
 
 use sdl2::render::Renderer;
 
-use ::engine::cache::TextureCache;
+use ::engine::cache::{AssetCacheResult, TextureCache};
 use ::engine::context::Context;
 use ::engine::events::Events;
+
+use ::game::explosion::Explosion;
 
 pub trait Enemy {
     fn init(&mut self, context: &mut Context);
@@ -19,4 +21,6 @@ pub trait Enemy {
 
     fn get_width(&self) -> u32;
     fn get_height(&self) -> u32;
+
+    fn explode(&self, context: &mut Context) -> Vec<Explosion>;
 }

@@ -99,17 +99,8 @@ impl GameScene {
 
                     // Have the enemy explode and die
                     if enemy.is_dead() {
-                        let start_x = enemy.get_x() + (enemy.get_width() as i32 / 2);
-                        let start_y = enemy.get_y() + (enemy.get_height() as i32 / 2);
-
-                        if let Some(ref cache) = self.medium_explosion_cache {
-                            let mut sprite = FrameAnimatedSprite::new(0.05, bounds, (*cache).clone());
-                            sprite.init(context);
-
-                            let x = start_x - sprite.width as i32 / 2;
-                            let y = start_y - (sprite.height as i32 / 2);
-                            self.explosions.push(Explosion::new((x, y), sprite));
-                        }
+                        let mut explosions = &mut enemy.explode(context);
+                        self.explosions.append(explosions);
                     }
                 }
             }
@@ -123,10 +114,6 @@ impl GameScene {
 
 impl Scene for GameScene {
     fn init(&mut self, context: &mut Context) {
-        let mut enemy = BasicEnemy::new((350, 50), 100, context.bounds);
-        enemy.init(context);
-        self.enemies.push(Box::new(enemy));
-
         self.player.init(context);
 
         let mut explosion_counter = Text::new((200, 10), "Active explosions: 0", 24, Color::RGBA(255, 255, 0, 255), "assets/fonts/OpenSans-Bold.ttf", self.get_bounds());
@@ -135,10 +122,22 @@ impl Scene for GameScene {
         self.explosion_counter = Some(explosion_counter);
 
         // Initialize explosion cached assets
-        self.large_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/large/"));
-        self.medium_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/medium/"));
-        self.small_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/small/"));
-        self.tiny_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/tiny/"));
+        let large_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/large/");
+        let medium_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/medium/");
+        let small_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/small/");
+        let tiny_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/tiny/");
+
+        // Create a basic enemy that uses the Medium explosion
+        let basic_explosion = medium_explosion_cache.clone();
+        let mut enemy = BasicEnemy::new((350, 50), 100, context.bounds, basic_explosion);
+        enemy.init(context);
+        self.enemies.push(Box::new(enemy));
+
+        // Store our caches for later
+        self.large_explosion_cache = Some(large_explosion_cache);
+        self.medium_explosion_cache = Some(medium_explosion_cache);
+        self.small_explosion_cache = Some(small_explosion_cache);
+        self.tiny_explosion_cache = Some(tiny_explosion_cache);
     }
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
