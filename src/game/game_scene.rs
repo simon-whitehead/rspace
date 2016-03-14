@@ -106,6 +106,10 @@ impl Scene for GameScene {
 
         let bounds = self.get_bounds();
 
+        for enemy in &mut self.enemies {
+            enemy.process(&mut context.event_handler, elapsed, context.timer.ticks());
+        }
+
         for explosion in &mut self.explosions {
             explosion.process(elapsed);
         }

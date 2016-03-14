@@ -28,7 +28,10 @@ pub struct BasicEnemy {
 
     bounds: Rect,
 
-    texture: Option<Texture>
+    texture: Option<Texture>,
+
+    move_interval: u32,
+    last_move_time: u32
 }
 
 impl BasicEnemy {
@@ -48,7 +51,10 @@ impl BasicEnemy {
             texture: None,
 
             health_points: hp,
-            dead: false
+            dead: false,
+
+            move_interval: 50,   // Every 50 milliseconds, move down the screen slightly
+            last_move_time: 0
         }
     }
 }
@@ -72,6 +78,12 @@ impl Enemy for BasicEnemy {
     }
 
     fn process(&mut self, events: &mut Events, elapsed: f64, time: u32) {
+        // Should we move down slightly?
+        if time - self.last_move_time >= self.move_interval {
+            self.y += 1;
+
+            self.last_move_time = time;
+        }
     }
 
 
