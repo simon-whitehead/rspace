@@ -58,6 +58,59 @@ impl GameScene {
             tiny_explosion_cache: None
         }
     }
+
+    // Process each enemy
+    fn process_enemies(&mut self, context: &mut Context, elapsed: f64) {
+        for enemy in &mut self.enemies {
+            enemy.process(&mut context.event_handler, elapsed, context.timer.ticks());
+        }
+    }
+
+    // Process each explosion and remove any deleted ones
+    fn process_explosions(&mut self, elapsed: f64) {
+        for explosion in &mut self.explosions {
+            explosion.process(elapsed);
+        }
+
+        // Clear out our explosions and only keep the ones that aren't deleted
+        let old_explosions = ::std::mem::replace(&mut self.explosions, vec![]);
+        self.explosions = old_explosions.into_iter().filter(|explosion| !explosion.deleted).collect();
+    }
+
+    fn process_bullets(&mut self, context: &mut Context) {
+        let bounds = self.get_bounds();
+
+        // For every bullet we have in the scene... process it
+        for bullet in &mut self.bullets {
+            bullet.process();
+
+            // Check if the bullet hit an enemy
+            for enemy in &mut self.enemies {
+                if enemy.hit_test(bullet.x, bullet.y) {
+                    // If it did ... delete this bullet
+                    bullet.deleted = true;
+
+                    // Tell the enemy it was damaged
+                    enemy.take_damage(10);
+
+                    // Have the enemy explode and die
+                    if enemy.is_dead() {
+                        let start_x = enemy.get_x() + (enemy.get_width() as i32 / 2);
+                        let start_y = enemy.get_y() + (enemy.get_height() as i32 / 2);
+
+                        if let Some(ref cache) = self.medium_explosion_cache {
+                            let mut sprite = FrameAnimatedSprite::new(0.05, bounds, (*cache).clone());
+                            sprite.init(context);
+
+                            let x = start_x - sprite.width as i32 / 2;
+                            let y = start_y - (sprite.height as i32 / 2);
+                            self.explosions.push(Explosion::new((x, y), sprite));
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 impl Scene for GameScene {
@@ -115,44 +168,14 @@ impl Scene for GameScene {
 
         let bounds = self.get_bounds();
 
-        for enemy in &mut self.enemies {
-            enemy.process(&mut context.event_handler, elapsed, context.timer.ticks());
-        }
+        // Handle enemies
+        self.process_enemies(context, elapsed);
 
-        for explosion in &mut self.explosions {
-            explosion.process(elapsed);
-        }
+        // Handle explosions
+        self.process_explosions(elapsed);
 
-        for bullet in &mut self.bullets {
-            bullet.process();
-
-            // Check if the bullet hit an enemy
-            for enemy in &mut self.enemies {
-                if enemy.hit_test(bullet.x, bullet.y) {
-                    bullet.deleted = true;
-
-                    enemy.take_damage(10);
-
-                    // Explode and die
-                    if enemy.is_dead() {
-                        let start_x = enemy.get_x() + (enemy.get_width() as i32 / 2);
-                        let start_y = enemy.get_y() + (enemy.get_height() as i32 / 2);
-
-                        if let Some(ref cache) = self.medium_explosion_cache {
-                            let mut sprite = FrameAnimatedSprite::new(0.05, bounds, (*cache).clone());
-                            sprite.init(context);
-
-                            let x = start_x - sprite.width as i32 / 2;
-                            let y = start_y - (sprite.height as i32 / 2);
-                            self.explosions.push(Explosion::new((x, y), sprite));
-                        }
-                    }
-                }
-            }
-        }
-
-        // Keep only the explosions that haven't finished exploding
-        self.explosions.retain(|explosion| !explosion.deleted);
+        // Handle the bullets
+        self.process_bullets(context);
 
         // Keep only the bullets still on the screen
         self.bullets.retain(|bullet| !bullet.deleted);

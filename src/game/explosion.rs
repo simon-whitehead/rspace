@@ -50,6 +50,6 @@ impl Explosion {
         self.sprite.process(elapsed);
 
         // If we've reached the end of our frames ... let the scene clean us up
-        self.deleted = self.sprite.current_frame >= self.sprite.cache.length - 1
+        self.deleted = self.sprite.current_frame >= self.sprite.cache.length - 1;
     }
 }
