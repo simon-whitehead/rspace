@@ -16,15 +16,17 @@ use ::engine::scene::{Scene, SceneResult};
 use ::engine::window::Window;
 
 use game::bullet::Bullet;
+use game::enemies::Enemy;
 
 pub enum PlayerProcessResult {
     None,
-    Shoot
+    Shoot,
+    CollidedWithEnemy(Box<Enemy>)
 }
 
 pub struct Player {
-    top: i32,
-    left: i32,
+    y: i32,
+    x: i32,
 
     width: u32,
     height: u32,
@@ -39,8 +41,8 @@ pub struct Player {
 impl Player {
     pub fn new(bounds: Rect) -> Player {
         Player {
-            top: 0i32,
-            left: 0i32,
+            x: 0i32,
+            y: 0i32,
 
             width: 0,
             height: 0,
@@ -66,26 +68,44 @@ impl Player {
 
     pub fn render(&mut self, asset_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
         match self.texture {
-            Some(ref tex) => renderer.copy(tex, Some(self.bounds), Some(Rect::new(self.left, self.top, self.width, self.height))),
+            Some(ref tex) => renderer.copy(tex, Some(self.bounds), Some(Rect::new(self.x, self.y, self.width, self.height))),
             _ => ()
         }
     }
 
-    pub fn process(&mut self, events: &mut Events, elapsed: f64, time: u32) -> PlayerProcessResult {
+    pub fn process(&mut self, enemies: &mut Vec<Box<Enemy>>, events: &mut Events, elapsed: f64, time: u32) -> PlayerProcessResult {
+        // Handle key presses
+        let mut result = self.process_keys(events, time);
+
+        // Have we collided with an enemy?
+        for enemy in enemies {
+            let player_rect = Rect::new(self.x, self.y, self.width, self.height);
+            let enemy_rect = Rect::new(enemy.get_x(), enemy.get_y(), enemy.get_width(), enemy.get_height());
+
+            if ::engine::helpers::overlap(player_rect, enemy_rect) {
+                // We collided ... kill the enemy
+                enemy.take_damage(999999);
+            }
+        }
+
+        result
+    }
+
+    fn process_keys(&mut self, events: &mut Events, time: u32) -> PlayerProcessResult {
         if events.key_pressed(::sdl2::keyboard::Keycode::Up) {
-            self.top = ::engine::helpers::clamp_min(self.top, -10, 0);
+            self.y = ::engine::helpers::clamp_min(self.y, -10, 0);
         }
 
         if events.key_pressed(::sdl2::keyboard::Keycode::Down) {
-            self.top = ::engine::helpers::clamp_max(self.top, 10, self.bounds.bottom() as i32 - self.height as i32);
+            self.y = ::engine::helpers::clamp_max(self.y, 10, self.bounds.bottom() as i32 - self.height as i32);
         }
 
         if events.key_pressed(::sdl2::keyboard::Keycode::Left) {
-            self.left = ::engine::helpers::clamp_min(self.left, -10, 0);
+            self.x = ::engine::helpers::clamp_min(self.x, -10, 0);
         }
 
         if events.key_pressed(::sdl2::keyboard::Keycode::Right) {
-            self.left = ::engine::helpers::clamp_max(self.left, 10, self.bounds.right() as i32 - self.width as i32);
+            self.x = ::engine::helpers::clamp_max(self.x, 10, self.bounds.right() as i32 - self.width as i32);
         }
 
         if events.key_pressed(::sdl2::keyboard::Keycode::Space) {
@@ -101,7 +121,7 @@ impl Player {
     pub fn shoot(&self) -> Vec<Bullet> {
         vec![
 
-            Bullet::new((self.left + self.width as i32 / 2, self.top))
+            Bullet::new((self.x + self.width as i32 / 2, self.y))
 
         ]
     }

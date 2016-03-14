@@ -59,6 +59,12 @@ impl GameScene {
     fn process_enemies(&mut self, context: &mut Context, elapsed: f64) {
         for enemy in &mut self.enemies {
             enemy.process(&mut context.event_handler, elapsed, context.timer.ticks());
+
+            // Have the enemy explode and die
+            if enemy.is_dead() {
+                let mut explosions = &mut enemy.explode(context);
+                self.explosions.append(explosions);
+            }
         }
 
         // Clear out our enemies and only keep the ones that aren't dead
@@ -92,12 +98,6 @@ impl GameScene {
 
                     // Tell the enemy it was damaged
                     enemy.take_damage(10);
-
-                    // Have the enemy explode and die
-                    if enemy.is_dead() {
-                        let mut explosions = &mut enemy.explode(context);
-                        self.explosions.append(explosions);
-                    }
                 }
             }
         }
@@ -171,6 +171,12 @@ impl Scene for GameScene {
 
         let bounds = self.get_bounds();
 
+        // Handle player actions
+        match self.player.process(&mut self.enemies, &mut context.event_handler, elapsed, context.timer.ticks()) {
+            PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
+            _ => ()
+        }
+
         // Handle enemies
         self.process_enemies(context, elapsed);
 
@@ -182,11 +188,6 @@ impl Scene for GameScene {
 
         if let Some(ref mut explosion_counter) = self.explosion_counter {
             explosion_counter.set_text(format!("Active explosions: {}", self.explosions.len()));
-        }
-
-        match self.player.process(&mut context.event_handler, elapsed, context.timer.ticks()) {
-            PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
-            _ => ()
         }
         
         SceneResult::None
