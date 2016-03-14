@@ -11,6 +11,8 @@ use sdl2_ttf::Sdl2TtfContext;
 use ::engine::events::Events;
 use ::engine::cache::TextureCache;
 
+static DEBUG: bool = true;
+
 pub struct Context<'window> {
     pub timer: TimerSubsystem,
     pub renderer: Renderer<'window>,
@@ -50,7 +52,7 @@ impl<'window> Context<'window> {
 
             bounds: bounds,
 
-            DEBUG: true
+            DEBUG: DEBUG
         }
     }
 }
