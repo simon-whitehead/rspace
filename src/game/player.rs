@@ -63,6 +63,9 @@ impl Player {
         self.width = width >> 2;
         self.height = height >> 2;
 
+        self.x = (self.bounds.width() as i32 / 2) - self.width as i32 / 2;
+        self.y = self.bounds.height() as i32 - self.height as i32;
+
         self.texture = Some(tex);
     }
 
