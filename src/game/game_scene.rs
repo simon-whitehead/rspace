@@ -92,7 +92,7 @@ impl GameScene {
 
             // Check if the bullet hit an enemy
             for enemy in &mut self.enemies {
-                if enemy.hit_test(bullet.x, bullet.y) {
+                if enemy.hit_test(Rect::new(bullet.x, bullet.y, 2, 6)) {
                     // If it did ... delete this bullet
                     bullet.deleted = true;
 

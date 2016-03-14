@@ -93,11 +93,10 @@ impl Enemy for BasicEnemy {
         }
     }
 
-    fn hit_test(&mut self, x: i32, y: i32) -> bool {
-        x > self.x &&
-        x < self.x + self.width as i32 &&
-        y > self.y &&
-        y < self.y + self.height as i32
+    fn hit_test(&mut self, rect: sdl2::rect::Rect) -> bool {
+        let enemy_rect = Rect::new(self.x, self.y, self.width, self.height);
+
+        ::engine::helpers::overlap(enemy_rect, rect)
     }
 
     fn is_dead(&self) -> bool {
