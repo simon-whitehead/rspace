@@ -15,7 +15,7 @@ use engine::scene::{Scene, SceneResult};
 use engine::text::Text;
 
 use ::game::bullet::Bullet;
-use ::game::enemies::BasicEnemy;
+use ::game::enemies::{Enemy, BasicEnemy};
 use ::game::explosion::{Explosion, ExplosionResult};
 use ::game::player::{Player, PlayerProcessResult};
 
@@ -29,7 +29,7 @@ pub struct GameScene {
 
     bullets: Vec<Bullet>,
 
-    basic_enemies: Vec<BasicEnemy>,
+    enemies: Vec<Box<Enemy>>,
 
     cache: Option<AssetCacheResult>
 }
@@ -47,7 +47,7 @@ impl GameScene {
 
             bullets: Vec::new(),
 
-            basic_enemies: Vec::new(),
+            enemies: Vec::new(),
 
             cache: None
         }
@@ -58,7 +58,7 @@ impl Scene for GameScene {
     fn init(&mut self, context: &mut Context) {
         let mut enemy = BasicEnemy::new((350, 50), 100, context.bounds);
         enemy.init(context);
-        self.basic_enemies.push(enemy);
+        self.enemies.push(Box::new(enemy));
 
         self.player.init(context);
 
@@ -83,7 +83,7 @@ impl Scene for GameScene {
 
         self.player.render(&context.texture_cache, &mut context.renderer, elapsed);
 
-        for enemy in &mut self.basic_enemies {
+        for enemy in &mut self.enemies {
             enemy.render(&context.texture_cache, &mut context.renderer, elapsed);
         }
 
@@ -114,16 +114,16 @@ impl Scene for GameScene {
             bullet.process();
 
             // Check if the bullet hit an enemy
-            for enemy in &mut self.basic_enemies {
+            for enemy in &mut self.enemies {
                 if enemy.hit_test(bullet.x, bullet.y) {
                     bullet.deleted = true;
 
-                    enemy.health_points -= 10;
+                    enemy.take_damage(10);
 
                     // Explode and die
                     if enemy.is_dead() {
-                        let start_x = enemy.x + (enemy.width as i32 / 2);
-                        let start_y = enemy.y + (enemy.height as i32 / 2);
+                        let start_x = enemy.get_x() + (enemy.get_width() as i32 / 2);
+                        let start_y = enemy.get_y() + (enemy.get_height() as i32 / 2);
 
                         if let Some(ref cache) = self.cache {
                             let mut sprite = FrameAnimatedSprite::new(0.05, bounds, (*cache).clone());
@@ -145,7 +145,7 @@ impl Scene for GameScene {
         self.bullets.retain(|bullet| !bullet.deleted);
 
         // Keep only alive enemies
-        self.basic_enemies.retain(|enemy| !enemy.is_dead());
+        self.enemies.retain(|enemy| !enemy.is_dead());
 
         if let Some(ref mut explosion_counter) = self.explosion_counter {
             explosion_counter.set_text(format!("Active explosions: {}", self.explosions.len()));
