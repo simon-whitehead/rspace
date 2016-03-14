@@ -134,7 +134,7 @@ impl Scene for GameScene {
         explosion_counter.init(context);
         self.explosion_counter = Some(explosion_counter);
 
-        // Initialize 5 explosions for the screen
+        // Initialize explosion cached assets
         self.large_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/large/"));
         self.medium_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/medium/"));
         self.small_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/small/"));
