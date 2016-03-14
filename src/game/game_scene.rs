@@ -31,7 +31,10 @@ pub struct GameScene {
 
     enemies: Vec<Box<Enemy>>,
 
-    cache: Option<AssetCacheResult>
+    large_explosion_cache: Option<AssetCacheResult>,
+    medium_explosion_cache: Option<AssetCacheResult>,
+    small_explosion_cache: Option<AssetCacheResult>,
+    tiny_explosion_cache: Option<AssetCacheResult>
 }
 
 impl GameScene {
@@ -49,7 +52,10 @@ impl GameScene {
 
             enemies: Vec::new(),
 
-            cache: None
+            large_explosion_cache: None,
+            medium_explosion_cache: None,
+            small_explosion_cache: None,
+            tiny_explosion_cache: None
         }
     }
 }
@@ -68,7 +74,10 @@ impl Scene for GameScene {
         self.explosion_counter = Some(explosion_counter);
 
         // Initialize 5 explosions for the screen
-        self.cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/large/"));
+        self.large_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/large/"));
+        self.medium_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/medium/"));
+        self.small_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/small/"));
+        self.tiny_explosion_cache = Some(context.texture_cache.precache(&context.renderer, "assets/explosion/tiny/"));
     }
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
@@ -129,7 +138,7 @@ impl Scene for GameScene {
                         let start_x = enemy.get_x() + (enemy.get_width() as i32 / 2);
                         let start_y = enemy.get_y() + (enemy.get_height() as i32 / 2);
 
-                        if let Some(ref cache) = self.cache {
+                        if let Some(ref cache) = self.medium_explosion_cache {
                             let mut sprite = FrameAnimatedSprite::new(0.05, bounds, (*cache).clone());
                             sprite.init(context);
 
