@@ -23,8 +23,6 @@ pub struct GameScene {
     bounds: Rect,
     player: Player,
     explosions: Vec<Explosion>,
-    explosion_interval: u32,
-    last_explosion_interval: u32,
     explosion_counter: Option<::engine::text::Text>,
 
     bullets: Vec<Bullet>,
@@ -44,8 +42,6 @@ impl GameScene {
             bounds: bounds,
             player: Player::new(bounds),
             explosions: Vec::new(),
-            explosion_interval: 1_000,
-            last_explosion_interval: 0,
             explosion_counter: None,
 
             bullets: Vec::new(),
