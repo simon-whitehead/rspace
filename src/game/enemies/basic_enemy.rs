@@ -115,6 +115,14 @@ impl Enemy for BasicEnemy {
         self.y
     }
 
+    fn set_x(&mut self, x: i32) {
+        self.x = x;
+    }
+
+    fn set_y(&mut self, y: i32) {
+        self.y = y;
+    }
+
     fn get_width(&self) -> u32 {
         self.width
     }

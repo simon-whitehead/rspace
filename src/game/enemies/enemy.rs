@@ -20,8 +20,16 @@ pub trait Enemy {
     fn get_x(&self) -> i32;
     fn get_y(&self) -> i32;
 
+    fn set_x(&mut self, x: i32);
+    fn set_y(&mut self, y: i32);
+
     fn get_width(&self) -> u32;
     fn get_height(&self) -> u32;
 
     fn explode(&self, context: &mut Context) -> Vec<Explosion>;
+}
+
+#[derive(Clone)]
+pub enum EnemyType {
+    BasicEnemy
 }

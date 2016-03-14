@@ -16,13 +16,21 @@ use engine::text::Text;
 
 use ::game::bullet::Bullet;
 use ::game::debug::DebugPanel;
-use ::game::enemies::{Enemy, BasicEnemy};
+use ::game::enemies::{Enemy, BasicEnemy, EnemyType};
 use ::game::explosion::{Explosion, ExplosionResult};
+use ::game::levels::{Level, Level1, OpCode};
 use ::game::player::{Player, PlayerProcessResult};
 
 pub struct GameScene {
     bounds: Rect,
     player: Player,
+
+    levels: Vec<Box<Level>>,
+    current_level: usize,
+    level_opcode: usize,
+    opcode_wait: u32,
+    last_opcode_time: u32,
+
     explosions: Vec<Explosion>,
     explosion_counter: Option<::engine::text::Text>,
 
@@ -44,6 +52,13 @@ impl GameScene {
         GameScene {
             bounds: bounds,
             player: Player::new(bounds),
+
+            levels: Vec::new(),
+            current_level: 0,
+            level_opcode: 0,
+            opcode_wait: 0,
+            last_opcode_time: 0,
+
             explosions: Vec::new(),
             explosion_counter: None,
 
@@ -57,6 +72,41 @@ impl GameScene {
             tiny_explosion_cache: None,
 
             debug_panel: None
+        }
+    }
+
+    fn process_level(&mut self, context: &mut Context) {
+        let mut rng = rand::thread_rng();
+
+        if context.timer.ticks() - self.last_opcode_time >= self.opcode_wait {
+            // We should process another level opcode now
+
+            let mut current_level = &mut self.levels[self.current_level];
+            let next_opcode = current_level.get(self.level_opcode);
+
+            match next_opcode {
+                OpCode::SpawnEnemy(enemy_type) => {
+                    match enemy_type {
+                        EnemyType::BasicEnemy => {
+                            if let Some(ref cache) = self.medium_explosion_cache {
+                                let random_x = rng.gen_range(0, context.bounds.width()) as i32;
+
+                                let mut enemy = BasicEnemy::new((random_x, 0), 100, context.bounds, (*cache).clone());
+                                enemy.init(context);
+                                let height = 0 - enemy.height as i32;
+                                enemy.set_y(height as i32);
+                                self.enemies.push(Box::new(enemy));
+                            }
+                        }
+                    }
+                },
+                OpCode::WaitFor(seconds) => {
+                    self.opcode_wait = context.timer.ticks() + seconds as u32 * 1000;
+                }
+                _ => ()
+            }
+
+            self.level_opcode += 1;
         }
     }
 
@@ -132,17 +182,20 @@ impl Scene for GameScene {
         let small_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/small/");
         let tiny_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/tiny/");
 
-        // Create a basic enemy that uses the Medium explosion
-        let basic_explosion = medium_explosion_cache.clone();
-        let mut enemy = BasicEnemy::new((350, 50), 100, context.bounds, basic_explosion);
-        enemy.init(context);
-        self.enemies.push(Box::new(enemy));
-
         // Store our caches for later
         self.large_explosion_cache = Some(large_explosion_cache);
         self.medium_explosion_cache = Some(medium_explosion_cache);
         self.small_explosion_cache = Some(small_explosion_cache);
         self.tiny_explosion_cache = Some(tiny_explosion_cache);
+
+        // Fire up Level 1
+        self.levels = vec![
+
+            Box::new(Level1::new())
+
+        ];
+
+        self.levels[self.current_level].init();
     }
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
@@ -187,6 +240,9 @@ impl Scene for GameScene {
             PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
             _ => ()
         }
+
+        // Handle the level VM
+        self.process_level(context);
 
         // Handle enemies
         self.process_enemies(context, elapsed);

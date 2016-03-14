@@ -13,6 +13,8 @@ pub mod debug {
 
 pub mod enemies;
 
+pub mod levels;
+
 pub mod scenes {
     pub use game::game_scene::GameScene;
 }
