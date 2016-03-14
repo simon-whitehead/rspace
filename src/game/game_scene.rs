@@ -15,6 +15,7 @@ use engine::scene::{Scene, SceneResult};
 use engine::text::Text;
 
 use ::game::bullet::Bullet;
+use ::game::debug::DebugPanel;
 use ::game::enemies::{Enemy, BasicEnemy};
 use ::game::explosion::{Explosion, ExplosionResult};
 use ::game::player::{Player, PlayerProcessResult};
@@ -32,7 +33,9 @@ pub struct GameScene {
     large_explosion_cache: Option<AssetCacheResult>,
     medium_explosion_cache: Option<AssetCacheResult>,
     small_explosion_cache: Option<AssetCacheResult>,
-    tiny_explosion_cache: Option<AssetCacheResult>
+    tiny_explosion_cache: Option<AssetCacheResult>,
+
+    debug_panel: Option<DebugPanel>
 }
 
 impl GameScene {
@@ -51,7 +54,9 @@ impl GameScene {
             large_explosion_cache: None,
             medium_explosion_cache: None,
             small_explosion_cache: None,
-            tiny_explosion_cache: None
+            tiny_explosion_cache: None,
+
+            debug_panel: None
         }
     }
 
@@ -110,12 +115,16 @@ impl GameScene {
 
 impl Scene for GameScene {
     fn init(&mut self, context: &mut Context) {
-        self.player.init(context);
+        let bounds = self.get_bounds();
 
-        let mut explosion_counter = Text::new((200, 10), "Active explosions: 0", 24, Color::RGBA(255, 255, 0, 255), "assets/fonts/OpenSans-Bold.ttf", self.get_bounds());
-                
-        explosion_counter.init(context);
-        self.explosion_counter = Some(explosion_counter);
+        if context.DEBUG {
+            let mut panel = DebugPanel::new();
+            panel.init(context, bounds);
+
+            self.debug_panel = Some(panel);
+        }
+
+        self.player.init(context);
 
         // Initialize explosion cached assets
         let large_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/large/");
@@ -160,8 +169,10 @@ impl Scene for GameScene {
             bullet.render(&mut context.renderer);
         }
 
-        if let Some(ref mut explosion_counter) = self.explosion_counter {
-            explosion_counter.render(&mut context.renderer, elapsed);
+        if context.DEBUG {
+            if let Some(ref mut debug_panel) = self.debug_panel {
+                debug_panel.render(&mut context.renderer, elapsed);
+            }
         }
 
         SceneResult::None
@@ -186,8 +197,12 @@ impl Scene for GameScene {
         // Handle the bullets
         self.process_bullets(context);
 
-        if let Some(ref mut explosion_counter) = self.explosion_counter {
-            explosion_counter.set_text(format!("Active explosions: {}", self.explosions.len()));
+        if context.DEBUG {
+            if let Some(ref mut debug_panel) = self.debug_panel {
+                debug_panel.set_active_explosions(self.explosions.len() as u32);
+                debug_panel.set_enemies(self.enemies.len() as u32);
+                debug_panel.set_bullets(self.bullets.len() as u32);
+            }
         }
         
         SceneResult::None

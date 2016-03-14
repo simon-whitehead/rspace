@@ -1,10 +1,15 @@
 
 mod bullet;
+mod debug_panel;
 mod explosion;
 mod game_scene;
 mod player;
 
 pub use self::player::Player;
+
+pub mod debug {
+    pub use ::game::debug_panel::DebugPanel;
+}
 
 pub mod enemies;
 

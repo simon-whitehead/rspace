@@ -65,7 +65,7 @@ impl Text {
         if let Some(ref font) = self.font {
             // Create a surface and texture to render
             let surface = font.render(&self.text[..])
-                .blended(self.color).unwrap();
+                .blended_wrapped(self.color, 200).unwrap();
 
             let tex = renderer.create_texture_from_surface(&surface).unwrap();
 

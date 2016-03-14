@@ -20,6 +20,8 @@ pub struct Context<'window> {
 
     pub bounds: sdl2::rect::Rect,
 
+    pub DEBUG: bool,
+
     context: Sdl,
     image_context: Sdl2ImageContext,
     video: VideoSubsystem,
@@ -46,7 +48,9 @@ impl<'window> Context<'window> {
             event_handler: event_handler,
             texture_cache: texture_cache,
 
-            bounds: bounds
+            bounds: bounds,
+
+            DEBUG: true
         }
     }
 }
