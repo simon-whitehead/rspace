@@ -1,5 +1,9 @@
 ## Older progress GIFs
 
+### 2016-03-14
+
+![progress-5](https://cloud.githubusercontent.com/assets/2499070/13743248/c65c5630-ea34-11e5-80d3-fd10f72c31d2.gif)
+
 ### 2016-03-13
 
 ![progress-4](https://cloud.githubusercontent.com/assets/2499070/13728071/fa45de02-e95e-11e5-8aee-9c557f8f104a.gif)
