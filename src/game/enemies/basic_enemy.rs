@@ -2,6 +2,7 @@
 extern crate sdl2;
 extern crate sdl2_image;
 
+use sdl2::pixels::Color;
 use sdl2::rect::{Point, Rect};
 use sdl2::render::{Texture, TextureQuery, Renderer};
 
@@ -17,6 +18,8 @@ use ::engine::events::Events;
 use ::game::bullet::Bullet;
 use ::game::enemies::Enemy;
 use ::game::explosion::Explosion;
+
+static HEALTH: i32 = 100;
 
 pub struct BasicEnemy {
     pub x: i32,
@@ -40,7 +43,6 @@ pub struct BasicEnemy {
 
 impl BasicEnemy {
     pub fn new(position: (i32, i32),
-               hp: i32,
                bounds: Rect,
                explosion_cache: AssetCacheResult) -> BasicEnemy {
 
@@ -57,7 +59,7 @@ impl BasicEnemy {
 
             explosion_cache: explosion_cache,
 
-            health_points: hp,
+            health_points: HEALTH,
             dead: false,
 
             move_interval: 50,   // Every 50 milliseconds, move down the screen slightly
@@ -79,9 +81,18 @@ impl Enemy for BasicEnemy {
     }
 
     fn render(&mut self, asset_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
+        // Render the ship
         if let Some(ref tex) = self.texture {
             renderer.copy_ex(tex, Some(self.bounds), Some(Rect::new(self.x, self.y, self.width, self.height)), 0.0, Some(Point::new(self.width as i32 / 2, self.height as i32 / 2)), false, true);
         }
+
+        // Render the health bar
+        renderer.set_draw_color(Color::RGB(255, 255, 0));
+        let health_percentage: f64 = self.health_points as f64 / HEALTH as f64;
+        let bar_x = self.x;
+        let bar_y = self.y + 10;
+
+        renderer.fill_rect(Rect::new(bar_x, bar_y, (self.width as f64 * health_percentage) as u32, 5));
     }
 
     fn process(&mut self, events: &mut Events, elapsed: f64, time: u32) {

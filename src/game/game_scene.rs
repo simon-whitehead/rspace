@@ -91,7 +91,7 @@ impl GameScene {
                             if let Some(ref cache) = self.medium_explosion_cache {
                                 let random_x = rng.gen_range(0, context.bounds.width()) as i32;
 
-                                let mut enemy = BasicEnemy::new((random_x, 0), 100, context.bounds, (*cache).clone());
+                                let mut enemy = BasicEnemy::new((random_x, 0), context.bounds, (*cache).clone());
                                 enemy.init(context);
                                 let height = 0 - enemy.height as i32;
                                 enemy.set_y(height as i32);
