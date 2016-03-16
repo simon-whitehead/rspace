@@ -3,6 +3,7 @@
 pub trait Level {
     fn init(&mut self);
     fn get(&mut self, index: usize) -> OpCode;
+    fn get_instruction_count(&self) -> usize;
 }
 
 #[macro_export]
@@ -21,9 +22,13 @@ macro_rules! level {
 
         impl $name {
             pub fn new() -> $name {
-                $name {
+                let mut l = $name {
                     instructions: Vec::new()
-                }
+                };
+
+                l.init();
+
+                l
             }
         }
 
@@ -38,6 +43,10 @@ macro_rules! level {
                 } else {
                     self.instructions[index].clone()
                 }
+            }
+
+            fn get_instruction_count(&self) -> usize {
+                self.instructions.len()
             }
         }
     }

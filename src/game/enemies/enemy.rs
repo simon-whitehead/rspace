@@ -29,7 +29,7 @@ pub trait Enemy {
     fn explode(&self, context: &mut Context) -> Vec<Explosion>;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum EnemyType {
     BasicEnemy
 }

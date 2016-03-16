@@ -7,11 +7,16 @@ use sdl2::render::Renderer;
 use ::engine::context::Context;
 use ::engine::text::Text;
 
+use ::game::levels::OpCode;
+
 pub struct DebugPanel {
     panel: Option<Text>,
     active_explosions: u32,
     enemies: u32,
-    bullets: u32
+    bullets: u32,
+
+    level: u32,
+    level_opcode: OpCode
 }
 
 impl DebugPanel {
@@ -20,7 +25,9 @@ impl DebugPanel {
             panel: None,
             active_explosions: 0,
             enemies: 0,
-            bullets: 0
+            bullets: 0,
+            level: 0,
+            level_opcode: OpCode::None
         }
     }
 
@@ -51,15 +58,24 @@ impl DebugPanel {
         self.bullets = bullets;
     }
 
+    pub fn set_level_info(&mut self, level: u32, opcode: OpCode) {
+        self.level = level;
+        self.level_opcode = opcode;
+    }
+
     fn generate_text(&self) -> String {
         format!(
         
 r"DEBUG:
 
+Level: {}
+Level OpCodes: {:?}
 Active explosions: {}
 Enemies: {}
 Bullets: {}", 
               
+              self.level,
+              self.level_opcode,
               self.active_explosions,
               self.enemies,
               self.bullets

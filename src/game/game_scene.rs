@@ -18,7 +18,7 @@ use ::game::bullet::Bullet;
 use ::game::debug::DebugPanel;
 use ::game::enemies::{Enemy, BasicEnemy, EnemyType};
 use ::game::explosion::{Explosion, ExplosionResult};
-use ::game::levels::{Level, Level1, OpCode};
+use ::game::levels::{Level, Level1, Level2, OpCode};
 use ::game::player::{Player, PlayerProcessResult};
 
 pub struct GameScene {
@@ -116,13 +116,23 @@ impl GameScene {
                     if self.enemies.len() == 0 {
                         // Do we have more levels to play?
                         if self.current_level == level_count - 1 {
+                            // Nope.. start the "Game Over" sequence
                             self.game_over_time = current_ticks;
                             self.opcode_wait = 999 * 1000;
                         } else {
                             // Switch levels
+                            self.opcode_wait = current_ticks + 5 as u32 * 1000; // Wait 5 seconds before starting the next level
                             self.current_level += 1;
+                            self.level_opcode = 0;
                         }
+                    } else {
+                        // Wait at least another second before processing another opcode (to give
+                        // the user time to finish the level)
+                        self.opcode_wait = current_ticks + 1000;
                     }
+                },
+                OpCode:: None => {
+                    ()
                 }
             }
 
@@ -208,10 +218,10 @@ impl Scene for GameScene {
         self.small_explosion_cache = Some(small_explosion_cache);
         self.tiny_explosion_cache = Some(tiny_explosion_cache);
 
-        // Fire up Level 1
         self.levels = vec![
 
-            Box::new(Level1::new())
+            Box::new(Level1::new()),
+            Box::new(Level2::new())
 
         ];
 
@@ -280,6 +290,8 @@ impl Scene for GameScene {
                 debug_panel.set_active_explosions(self.explosions.len() as u32);
                 debug_panel.set_enemies(self.enemies.len() as u32);
                 debug_panel.set_bullets(self.bullets.len() as u32);
+
+                debug_panel.set_level_info(self.current_level as u32, self.levels[self.current_level].get(self.level_opcode));
             }
         }
 
