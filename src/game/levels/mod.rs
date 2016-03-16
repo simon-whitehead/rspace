@@ -1,6 +1,7 @@
 mod builder;
 mod opcodes;
 
+#[macro_use]
 pub mod level;
 pub mod level1;
 
