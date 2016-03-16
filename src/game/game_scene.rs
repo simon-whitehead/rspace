@@ -31,6 +31,9 @@ pub struct GameScene {
     opcode_wait: u32,
     last_opcode_time: u32,
 
+    game_over_interval: u32,
+    game_over_time: u32,
+
     explosions: Vec<Explosion>,
     explosion_counter: Option<::engine::text::Text>,
 
@@ -59,6 +62,9 @@ impl GameScene {
             opcode_wait: 0,
             last_opcode_time: 0,
 
+            game_over_interval: 2000,
+            game_over_time: 0,
+
             explosions: Vec::new(),
             explosion_counter: None,
 
@@ -77,10 +83,12 @@ impl GameScene {
 
     fn process_level(&mut self, context: &mut Context) {
         let mut rng = rand::thread_rng();
+        let current_ticks = context.timer.ticks();
 
-        if context.timer.ticks() - self.last_opcode_time >= self.opcode_wait {
+        if current_ticks - self.last_opcode_time >= self.opcode_wait {
             // We should process another level opcode now
 
+            let level_count = self.levels.len();
             let mut current_level = &mut self.levels[self.current_level];
             let next_opcode = current_level.get(self.level_opcode);
 
@@ -102,8 +110,20 @@ impl GameScene {
                 },
                 OpCode::WaitFor(seconds) => {
                     self.opcode_wait = context.timer.ticks() + seconds as u32 * 1000;
+                },
+                OpCode::EndLevel => {
+                    // No more enemies left?
+                    if self.enemies.len() == 0 {
+                        // Do we have more levels to play?
+                        if self.current_level == level_count - 1 {
+                            self.game_over_time = current_ticks;
+                            self.opcode_wait = 999 * 1000;
+                        } else {
+                            // Switch levels
+                            self.current_level += 1;
+                        }
+                    }
                 }
-                _ => ()
             }
 
             self.level_opcode += 1;
@@ -201,7 +221,9 @@ impl Scene for GameScene {
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
         let events = &mut context.event_handler;
 
-        if events.quit || events.key_pressed(sdl2::keyboard::Keycode::Escape) {
+        // Quit if someone quits or Game Over is done
+        if (events.quit || events.key_pressed(sdl2::keyboard::Keycode::Escape)) ||
+            self.game_over_time > 0 && (context.timer.ticks() - self.game_over_time >= self.game_over_interval) {
             return SceneResult::Quit;
         }
         
@@ -260,7 +282,7 @@ impl Scene for GameScene {
                 debug_panel.set_bullets(self.bullets.len() as u32);
             }
         }
-        
+
         SceneResult::None
     }
 
