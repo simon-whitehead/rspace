@@ -124,6 +124,7 @@ impl GameScene {
                             self.opcode_wait = current_ticks + 5 as u32 * 1000; // Wait 5 seconds before starting the next level
                             self.current_level += 1;
                             self.level_opcode = 0;
+                            return;
                         }
                     } else {
                         // Wait at least another second before processing another opcode (to give
