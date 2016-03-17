@@ -3,8 +3,6 @@ extern crate rand;
 extern crate sdl2;
 extern crate sdl2_image;
 
-use game::game_scene::rand::Rng;
-
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 
@@ -16,7 +14,7 @@ use engine::text::Text;
 
 use ::game::bullet::Bullet;
 use ::game::debug::DebugPanel;
-use ::game::enemies::{Enemy, BasicEnemy, EnemyType};
+use ::game::enemies::{Enemy, EnemyFactory, BasicEnemy, EnemyType};
 use ::game::explosion::{Explosion, ExplosionResult};
 use ::game::levels::{LevelParser, Level, Level1, Level2, OpCode};
 use ::game::player::{Player, PlayerProcessResult};
@@ -38,13 +36,12 @@ pub struct GameScene {
     bullets: Vec<Bullet>,
 
     enemies: Vec<Box<Enemy>>,
+    enemy_factory: EnemyFactory,
 
     large_explosion_cache: Option<AssetCacheResult>,
     medium_explosion_cache: Option<AssetCacheResult>,
     small_explosion_cache: Option<AssetCacheResult>,
     tiny_explosion_cache: Option<AssetCacheResult>,
-
-    rng: rand::ThreadRng,
 
     debug_panel: Option<DebugPanel>
 }
@@ -69,13 +66,12 @@ impl GameScene {
             bullets: Vec::new(),
 
             enemies: Vec::new(),
+            enemy_factory: EnemyFactory::new(bounds),
 
             large_explosion_cache: None,
             medium_explosion_cache: None,
             small_explosion_cache: None,
             tiny_explosion_cache: None,
-
-            rng: rand::thread_rng(),
 
             debug_panel: None
         }
@@ -97,14 +93,9 @@ impl GameScene {
                 OpCode::SpawnEnemy(enemy_type) => {
                     match enemy_type {
                         EnemyType::BasicEnemy => {
+                            // Spawn a BasicEnemy in the scene somewhere
                             if let Some(ref cache) = self.medium_explosion_cache {
-                                let random_x = self.rng.gen_range(0, context.bounds.width()) as i32;
-
-                                let mut enemy = BasicEnemy::new((random_x, 0), context.bounds, (*cache).clone());
-                                enemy.init(context);
-                                let height = 0 - enemy.height as i32;
-                                enemy.set_y(height as i32);
-
+                                let enemy = self.enemy_factory.create_basic_enemy(context, (*cache).clone());
                                 self.enemies.push(Box::new(enemy));
                             }
                         }
