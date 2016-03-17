@@ -31,6 +31,8 @@ impl LevelParser {
             self.current = result.clone();
             self.current_opcode += 1;
             self.last_opcode_time = current_time;
+            self.opcode_wait = 0;
+
             result
         } else {
             OpCode::None
