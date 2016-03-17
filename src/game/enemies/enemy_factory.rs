@@ -12,7 +12,7 @@ use ::engine::context::Context;
 use ::game::enemies::{Enemy, BasicEnemy};
 
 pub struct EnemyFactory {
-    positions: Vec<u32>,
+    positions: Vec<i32>,
     bounds: Rect,
     rng: rand::ThreadRng
 }
@@ -37,34 +37,33 @@ impl EnemyFactory {
     // This method attempts to not overlap enemies that have recently spawned.
     // It does this by referring back to a local cache of recent X positions
     // and generates a random number until none overlap.
-    fn get_x(&mut self, threshold: u32) -> u32 {
-        let mut random_x = self.rng.gen_range(0, self.bounds.width()-threshold);
-        let mut found = false;
+    fn get_x(&mut self, threshold: i32) -> i32 {
+        let mut random_x = self.rng.gen_range(0, self.bounds.width() as i32-threshold) as i32;
+        let mut overlapping = false;
         let mut iterations = 0;
 
         if self.positions.len() == 0 {
             random_x
         } else {
-
-            while !found {
+            while !overlapping {
                 iterations += 1;
-                // If we've tried for too long ... bail out and just let them overlap
                 if iterations > 20 {
+                    // We've tried... and failed. Bail out and let them overlap
                     return random_x;
                 }
                 for p in &self.positions {
-                    if random_x > *p {
-                        if random_x > *p + threshold {
-                            found = true;
-                        }
+                    if random_x > *p - threshold && random_x < *p + threshold {
+                        overlapping = true;
                     } else {
-                        if random_x < *p - threshold {
-                            found = true;
-                        }
+                        overlapping = false;
                     }
                 }
 
-                random_x = self.rng.gen_range(0, self.bounds.width()-threshold);
+                if overlapping {
+                    random_x = self.rng.gen_range(0, self.bounds.width() as i32-threshold);
+                } else {
+                    break;
+                }
             }
 
             random_x
@@ -75,8 +74,8 @@ impl EnemyFactory {
         let mut enemy = BasicEnemy::new((0, 0), self.bounds, cache);
         enemy.init(context);
 
-        let random_x = self.get_x(enemy.get_width());
-        self.positions.push(random_x);
+        let random_x = self.get_x(enemy.get_width() as i32) as u32;
+        self.positions.push(random_x as i32);
 
         let height = 0 - enemy.height as i32;
         enemy.set_x(random_x as i32);

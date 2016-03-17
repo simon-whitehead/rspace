@@ -110,8 +110,8 @@ impl GameScene {
                         // Do we have more levels to play?
                         if self.current_level < self.levels.len() {
                             // Switch levels
-                            parser.wait_for(5);
                             parser.reset();
+                            parser.wait_for(5);
                             self.current_level += 1;
 
                             return;
