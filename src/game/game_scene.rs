@@ -131,6 +131,9 @@ impl GameScene {
 
     // Process each enemy
     fn process_enemies(&mut self, context: &mut Context, elapsed: f64) {
+        // Clean up the enemy factory
+        self.enemy_factory.GC();
+
         for enemy in &mut self.enemies {
             enemy.process(&mut context.event_handler, elapsed, context.timer.ticks());
 
