@@ -1,5 +1,4 @@
 
-
 level! {
     name: Level2,
     instructions: LevelBuilder::new()

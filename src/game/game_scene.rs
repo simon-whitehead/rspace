@@ -18,7 +18,7 @@ use ::game::bullet::Bullet;
 use ::game::debug::DebugPanel;
 use ::game::enemies::{Enemy, BasicEnemy, EnemyType};
 use ::game::explosion::{Explosion, ExplosionResult};
-use ::game::levels::{Level, Level1, Level2, OpCode};
+use ::game::levels::{LevelParser, Level, Level1, Level2, OpCode};
 use ::game::player::{Player, PlayerProcessResult};
 
 pub struct GameScene {
@@ -27,9 +27,7 @@ pub struct GameScene {
 
     levels: Vec<Box<Level>>,
     current_level: usize,
-    level_opcode: usize,
-    opcode_wait: u32,
-    last_opcode_time: u32,
+    level_parser: Option<LevelParser>,
 
     game_over_interval: u32,
     game_over_time: u32,
@@ -46,6 +44,8 @@ pub struct GameScene {
     small_explosion_cache: Option<AssetCacheResult>,
     tiny_explosion_cache: Option<AssetCacheResult>,
 
+    rng: rand::ThreadRng,
+
     debug_panel: Option<DebugPanel>
 }
 
@@ -58,9 +58,7 @@ impl GameScene {
 
             levels: Vec::new(),
             current_level: 0,
-            level_opcode: 0,
-            opcode_wait: 0,
-            last_opcode_time: 0,
+            level_parser: None,
 
             game_over_interval: 2000,
             game_over_time: 0,
@@ -77,67 +75,66 @@ impl GameScene {
             small_explosion_cache: None,
             tiny_explosion_cache: None,
 
+            rng: rand::thread_rng(),
+
             debug_panel: None
         }
     }
 
     fn process_level(&mut self, context: &mut Context) {
-        let mut rng = rand::thread_rng();
         let current_ticks = context.timer.ticks();
 
-        if current_ticks - self.last_opcode_time >= self.opcode_wait {
-            // We should process another level opcode now
+        if self.current_level >= self.levels.len() {
+            // Start the "Game Over" sequence
+            if self.game_over_time == 0 {
+                self.game_over_time = current_ticks;
+            }
+            return;
+        }
 
-            let level_count = self.levels.len();
-            let mut current_level = &mut self.levels[self.current_level];
-            let next_opcode = current_level.get(self.level_opcode);
-
-            match next_opcode {
+        if let Some(ref mut parser) = self.level_parser {
+            match parser.process(&mut self.levels[self.current_level], current_ticks) {
                 OpCode::SpawnEnemy(enemy_type) => {
                     match enemy_type {
                         EnemyType::BasicEnemy => {
                             if let Some(ref cache) = self.medium_explosion_cache {
-                                let random_x = rng.gen_range(0, context.bounds.width()) as i32;
+                                let random_x = self.rng.gen_range(0, context.bounds.width()) as i32;
 
                                 let mut enemy = BasicEnemy::new((random_x, 0), context.bounds, (*cache).clone());
                                 enemy.init(context);
                                 let height = 0 - enemy.height as i32;
                                 enemy.set_y(height as i32);
+
                                 self.enemies.push(Box::new(enemy));
                             }
                         }
                     }
                 },
                 OpCode::WaitFor(seconds) => {
-                    self.opcode_wait = context.timer.ticks() + seconds as u32 * 1000;
+                    parser.wait_for(seconds as u32);
                 },
                 OpCode::EndLevel => {
                     // No more enemies left?
                     if self.enemies.len() == 0 {
                         // Do we have more levels to play?
-                        if self.current_level == level_count - 1 {
-                            // Nope.. start the "Game Over" sequence
-                            self.game_over_time = current_ticks;
-                            self.opcode_wait = 999 * 1000;
-                        } else {
+                        if self.current_level < self.levels.len() {
                             // Switch levels
-                            self.opcode_wait = current_ticks + 5 as u32 * 1000; // Wait 5 seconds before starting the next level
+                            parser.wait_for(5);
+                            parser.reset();
                             self.current_level += 1;
-                            self.level_opcode = 0;
+
                             return;
                         }
                     } else {
                         // Wait at least another second before processing another opcode (to give
                         // the user time to finish the level)
-                        self.opcode_wait = current_ticks + 1000;
+                        parser.wait_for(1);
                     }
                 },
                 OpCode:: None => {
                     ()
                 }
             }
-
-            self.level_opcode += 1;
         }
     }
 
@@ -227,6 +224,8 @@ impl Scene for GameScene {
         ];
 
         self.levels[self.current_level].init();
+
+        self.level_parser = Some(LevelParser::new(self.levels.len() as u32));
     }
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
@@ -292,7 +291,9 @@ impl Scene for GameScene {
                 debug_panel.set_enemies(self.enemies.len() as u32);
                 debug_panel.set_bullets(self.bullets.len() as u32);
 
-                debug_panel.set_level_info(self.current_level as u32, self.levels[self.current_level].get(self.level_opcode));
+                if let Some(ref level_parser) = self.level_parser {
+                    debug_panel.set_level_info(self.current_level as u32, level_parser.current_opcode());
+                }
             }
         }
 
