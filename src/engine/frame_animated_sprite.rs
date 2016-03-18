@@ -2,14 +2,11 @@
 extern crate sdl2;
 extern crate sdl2_image;
 
-use std::path::Path;
-
 use sdl2::rect::Rect;
-use sdl2::render::{Renderer, Texture, TextureQuery};
+use sdl2::render::{Renderer, TextureQuery};
 
 use ::engine::cache::{TextureCache, AssetCacheResult};
 use ::engine::context::Context;
-use ::engine::events::Events;
 
 /// FrameAnimatedSprite represents a sprite that animates via
 /// frames stored as individual files.
@@ -54,7 +51,7 @@ impl FrameAnimatedSprite {
         self.height = height;
     }
 
-    pub fn render(&mut self, position: (i32, i32), texture_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
+    pub fn render(&mut self, position: (i32, i32), texture_cache: &TextureCache, renderer: &mut Renderer) {
         // Grab the frame from the texture cache, with the cache offset applied
         let frame_index = self.cache.index + self.current_frame;
         let sprite = &texture_cache.assets[frame_index as usize];

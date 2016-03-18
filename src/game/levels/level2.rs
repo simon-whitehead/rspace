@@ -5,6 +5,7 @@ level! {
         .spawn(EnemyType::BasicEnemy)
         .spawn(EnemyType::BasicEnemy)
         .spawn(EnemyType::BasicEnemy)
+        .wait_for(2)
         .spawn(EnemyType::BasicEnemy)
         .spawn(EnemyType::BasicEnemy)
         .spawn(EnemyType::BasicEnemy)

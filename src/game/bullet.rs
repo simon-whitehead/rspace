@@ -31,6 +31,6 @@ impl Bullet {
     pub fn render(&mut self, renderer: &mut Renderer) {
         renderer.set_draw_color(Color::RGB(255, 255, 0));
 
-        renderer.fill_rect(Rect::new(self.x, self.y, 2, 6));
+        renderer.fill_rect(Rect::new(self.x, self.y, 2, 6)).unwrap();
     }
 }

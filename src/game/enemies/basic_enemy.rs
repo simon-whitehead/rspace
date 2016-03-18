@@ -15,7 +15,6 @@ use ::engine::context::Context;
 use ::engine::entities::FrameAnimatedSprite;
 use ::engine::events::Events;
 
-use ::game::bullet::Bullet;
 use ::game::enemies::Enemy;
 use ::game::explosion::Explosion;
 
@@ -80,10 +79,10 @@ impl Enemy for BasicEnemy {
         self.texture = Some(tex);
     }
 
-    fn render(&mut self, asset_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
+    fn render(&mut self, _asset_cache: &TextureCache, renderer: &mut Renderer, _elapsed: f64) {
         // Render the ship
         if let Some(ref tex) = self.texture {
-            renderer.copy_ex(tex, Some(self.bounds), Some(Rect::new(self.x, self.y, self.width, self.height)), 0.0, Some(Point::new(self.width as i32 / 2, self.height as i32 / 2)), false, true);
+            renderer.copy_ex(tex, Some(self.bounds), Some(Rect::new(self.x, self.y, self.width, self.height)), 0.0, Some(Point::new(self.width as i32 / 2, self.height as i32 / 2)), false, true).unwrap();
         }
 
         // Render the health bar
@@ -92,10 +91,10 @@ impl Enemy for BasicEnemy {
         let bar_x = self.x;
         let bar_y = self.y + 10;
 
-        renderer.fill_rect(Rect::new(bar_x, bar_y, (self.width as f64 * health_percentage) as u32, 5));
+        renderer.fill_rect(Rect::new(bar_x, bar_y, (self.width as f64 * health_percentage) as u32, 5)).unwrap();
     }
 
-    fn process(&mut self, events: &mut Events, elapsed: f64, time: u32) {
+    fn process(&mut self, _events: &mut Events, _elapsed: f64, time: u32) {
         // Should we move down slightly?
         if time - self.last_move_time >= self.move_interval {
             self.y += 1;

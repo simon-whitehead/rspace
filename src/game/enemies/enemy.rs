@@ -3,7 +3,7 @@ extern crate sdl2;
 use sdl2::rect::Rect;
 use sdl2::render::Renderer;
 
-use ::engine::cache::{AssetCacheResult, TextureCache};
+use ::engine::cache::TextureCache;
 use ::engine::context::Context;
 use ::engine::events::Events;
 

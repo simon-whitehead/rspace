@@ -8,14 +8,12 @@ use sdl2::rect::Rect;
 
 use engine::cache::AssetCacheResult;
 use engine::context::Context;
-use engine::entities::FrameAnimatedSprite;
 use engine::scene::{Scene, SceneResult};
-use engine::text::Text;
 
 use ::game::bullet::Bullet;
 use ::game::debug::DebugPanel;
-use ::game::enemies::{Enemy, EnemyFactory, BasicEnemy, EnemyType};
-use ::game::explosion::{Explosion, ExplosionResult};
+use ::game::enemies::{Enemy, EnemyFactory, EnemyType};
+use ::game::explosion::Explosion;
 use ::game::levels::{LevelParser, Level, Level1, Level2, OpCode};
 use ::game::player::{Player, PlayerProcessResult};
 
@@ -31,10 +29,7 @@ pub struct GameScene {
     game_over_time: u32,
 
     explosions: Vec<Explosion>,
-    explosion_counter: Option<::engine::text::Text>,
-
     bullets: Vec<Bullet>,
-
     enemies: Vec<Box<Enemy>>,
     enemy_factory: EnemyFactory,
 
@@ -61,10 +56,7 @@ impl GameScene {
             game_over_time: 0,
 
             explosions: Vec::new(),
-            explosion_counter: None,
-
             bullets: Vec::new(),
-
             enemies: Vec::new(),
             enemy_factory: EnemyFactory::new(bounds),
 
@@ -132,7 +124,7 @@ impl GameScene {
     // Process each enemy
     fn process_enemies(&mut self, context: &mut Context, elapsed: f64) {
         // Clean up the enemy factory
-        self.enemy_factory.GC();
+        self.enemy_factory.gc();
 
         for enemy in &mut self.enemies {
             enemy.process(&mut context.event_handler, elapsed, context.timer.ticks());
@@ -160,9 +152,7 @@ impl GameScene {
         self.explosions = old_explosions.into_iter().filter(|explosion| !explosion.deleted).collect();
     }
 
-    fn process_bullets(&mut self, context: &mut Context) {
-        let bounds = self.get_bounds();
-
+    fn process_bullets(&mut self) {
         // For every bullet we have in the scene... process it
         for bullet in &mut self.bullets {
             bullet.process();
@@ -219,7 +209,7 @@ impl Scene for GameScene {
 
         self.levels[self.current_level].init();
 
-        self.level_parser = Some(LevelParser::new(self.levels.len() as u32));
+        self.level_parser = Some(LevelParser::new());
     }
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
@@ -234,14 +224,14 @@ impl Scene for GameScene {
         context.renderer.set_draw_color(Color::RGB(0, 0, 0));
         context.renderer.clear();
 
-        self.player.render(&context.texture_cache, &mut context.renderer, elapsed);
+        self.player.render(&mut context.renderer);
 
         for enemy in &mut self.enemies {
             enemy.render(&context.texture_cache, &mut context.renderer, elapsed);
         }
 
         for explosion in &mut self.explosions {
-            explosion.render(&context.texture_cache, &mut context.renderer, elapsed);
+            explosion.render(&context.texture_cache, &mut context.renderer);
         }
 
         for bullet in &mut self.bullets {
@@ -250,7 +240,7 @@ impl Scene for GameScene {
 
         if context.DEBUG {
             if let Some(ref mut debug_panel) = self.debug_panel {
-                debug_panel.render(&mut context.renderer, elapsed);
+                debug_panel.render(&mut context.renderer);
             }
         }
 
@@ -258,11 +248,8 @@ impl Scene for GameScene {
     }
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-
-        let bounds = self.get_bounds();
-
         // Handle player actions
-        match self.player.process(&mut self.enemies, &mut context.event_handler, elapsed, context.timer.ticks()) {
+        match self.player.process(&mut self.enemies, &mut context.event_handler, context.timer.ticks()) {
             PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
             _ => ()
         }
@@ -277,7 +264,7 @@ impl Scene for GameScene {
         self.process_explosions(elapsed);
 
         // Handle the bullets
-        self.process_bullets(context);
+        self.process_bullets();
 
         if context.DEBUG {
             if let Some(ref mut debug_panel) = self.debug_panel {

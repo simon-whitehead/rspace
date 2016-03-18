@@ -2,12 +2,7 @@ extern crate sdl2;
 extern crate sdl2_image;
 extern crate sdl2_ttf;
 
-use std::collections::HashMap;
-
-use std::path::Path;
 use sdl2::pixels::Color;
-
-use sdl2_image::LoadTexture;
 
 use ::engine::cache::TextureCache;
 use ::engine::context::Context;
@@ -21,9 +16,6 @@ pub struct Window<'window> {
     pub height: u32,
     pub context: Context<'window>,
 
-    title: String,
-
-    scenes: HashMap<&'static str, Box<Scene>>,
     current_scene: Box<Scene>,
     fps: Option<::engine::text::Text>,
     frame_timer: FrameTimer
@@ -53,9 +45,9 @@ impl<'window> Window<'window> {
         let mut timer = context.timer().unwrap();
 
         let interval = 1_000 / 60;
-        let mut prev = timer.ticks();
-        let mut last_second = timer.ticks();
-        let mut fps = 0u32;
+        let prev = timer.ticks();
+        let last_second = timer.ticks();
+        let fps = 0u32;
 
         let frame_timer = FrameTimer::new(
             interval,
@@ -68,8 +60,6 @@ impl<'window> Window<'window> {
 
             width: width,
             height: height,
-
-            title: title.to_string(),
 
             context: Context::new(
                 context,
@@ -84,7 +74,6 @@ impl<'window> Window<'window> {
             ),
             frame_timer: frame_timer,
             fps: None,
-            scenes: HashMap::new(),
             current_scene: Box::new(DefaultScene::new())
         }
     }
@@ -121,7 +110,7 @@ impl<'window> Window<'window> {
                     ::engine::scene::SceneResult::None => {
                         // Render the FPS on top of the scene
                         if let Some(ref mut fps) = self.fps {
-                            fps.render(&mut self.context.renderer, self.frame_timer.elapsed);
+                            fps.render(&mut self.context.renderer);
                         }
                         self.context.renderer.present();
                     },
@@ -164,10 +153,6 @@ impl<'window> Window<'window> {
 
     pub fn set_scene(&mut self, scene: Box<Scene>) {
         self.current_scene = scene;
-    }
-
-    pub fn add_scene(&mut self, name: &'static str, scene: Box<Scene>) {
-        self.scenes.insert(name, scene);
     }
 }
 

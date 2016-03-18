@@ -25,7 +25,6 @@ impl Events {
     pub fn pump(&mut self) {
         for event in self.pump.poll_iter() {
             use sdl2::event::Event::*;
-            use sdl2::keyboard::Keycode::*;
 
             match event {
                 Quit { .. } => self.quit = true,

@@ -5,20 +5,17 @@ use std::path::Path;
 
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
-use sdl2::render::{Renderer, Texture, TextureQuery};
+use sdl2::render::{Renderer, TextureQuery};
 
-use sdl2_ttf::{Font, Sdl2TtfContext};
+use sdl2_ttf::Font;
 
-use ::engine::cache::TextureCache;
 use ::engine::context::Context;
-use ::engine::events::Events;
 
 pub struct Text {
     top: i32,
     left: i32,
     
     text: String,
-    ttf_context: Option<Sdl2TtfContext>,
     font: Option<Font>,
     font_size: u16,
     font_path: &'static str,
@@ -40,7 +37,6 @@ impl Text {
             top: position.1,
            
             text: text.to_string(),
-            ttf_context: None,
             font: None,
             font_size: size,
             font_path: path,
@@ -61,7 +57,7 @@ impl Text {
         self.font = Some(font);
     }
     
-    pub fn render(&mut self, renderer: &mut Renderer, elapsed: f64) {
+    pub fn render(&mut self, renderer: &mut Renderer) {
         if let Some(ref font) = self.font {
             // Create a surface and texture to render
             let surface = font.render(&self.text[..])
@@ -72,9 +68,5 @@ impl Text {
             let TextureQuery { width, height, .. } = tex.query();
             renderer.copy(&tex, Some(self.bounds), Some(Rect::new(self.left, self.top, width, height)));    
         }
-    }
-     
-    pub fn process(&mut self, event_handler: &mut Events, elapsed: f64) {
-         
     }
 }

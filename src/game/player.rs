@@ -3,25 +3,20 @@ extern crate sdl2_image;
 
 use std::path::Path;
 
-use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::{Renderer, Texture, TextureQuery};
 
 use sdl2_image::LoadTexture;
 
-use ::engine::cache::TextureCache;
 use ::engine::context::Context;
 use ::engine::events::Events;
-use ::engine::scene::{Scene, SceneResult};
-use ::engine::window::Window;
 
 use game::bullet::Bullet;
 use game::enemies::Enemy;
 
 pub enum PlayerProcessResult {
     None,
-    Shoot,
-    CollidedWithEnemy(Box<Enemy>)
+    Shoot
 }
 
 pub struct Player {
@@ -69,16 +64,16 @@ impl Player {
         self.texture = Some(tex);
     }
 
-    pub fn render(&mut self, asset_cache: &TextureCache, renderer: &mut Renderer, elapsed: f64) {
+    pub fn render(&mut self, renderer: &mut Renderer) {
         match self.texture {
             Some(ref tex) => renderer.copy(tex, Some(self.bounds), Some(Rect::new(self.x, self.y, self.width, self.height))),
             _ => ()
         }
     }
 
-    pub fn process(&mut self, enemies: &mut Vec<Box<Enemy>>, events: &mut Events, elapsed: f64, time: u32) -> PlayerProcessResult {
+    pub fn process(&mut self, enemies: &mut Vec<Box<Enemy>>, events: &mut Events, time: u32) -> PlayerProcessResult {
         // Handle key presses
-        let mut result = self.process_keys(events, time);
+        let result = self.process_keys(events, time);
 
         // Have we collided with an enemy?
         for enemy in enemies {

@@ -2,7 +2,6 @@
 use ::game::levels::{Level, OpCode};
 
 pub struct LevelParser {
-    level_count: u32,
     current_opcode: usize,
 
     last_opcode_time: u32,  // Last time we processed an opcode
@@ -12,9 +11,8 @@ pub struct LevelParser {
 }
 
 impl LevelParser {
-    pub fn new(level_count: u32) -> LevelParser {
+    pub fn new() -> LevelParser {
         LevelParser {
-            level_count: level_count,
             current_opcode: 0,
 
             last_opcode_time: 0,

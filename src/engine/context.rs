@@ -13,6 +13,8 @@ use ::engine::cache::TextureCache;
 
 static DEBUG: bool = true;
 
+#[allow(dead_code)]
+#[allow(non_snake_case)]
 pub struct Context<'window> {
     pub timer: TimerSubsystem,
     pub renderer: Renderer<'window>,

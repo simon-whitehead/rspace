@@ -38,11 +38,11 @@ impl DebugPanel {
         self.panel = Some(debug_panel);
     }
 
-    pub fn render(&mut self, renderer: &mut Renderer, elapsed: f64) {
+    pub fn render(&mut self, renderer: &mut Renderer) {
         let text = self.generate_text();
         if let Some(ref mut panel) = self.panel {
             panel.set_text(text);
-            panel.render(renderer, elapsed);
+            panel.render(renderer);
         }
     }
 

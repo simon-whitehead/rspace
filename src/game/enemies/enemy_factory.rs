@@ -28,7 +28,7 @@ impl EnemyFactory {
 
     // Remove the last 5 enemy positions we have stored
     // so that we can use those locations again
-    pub fn GC(&mut self) {
+    pub fn gc(&mut self) {
         if self.positions.len() > 20 {
             self.positions = self.positions.split_off(4);
         }
@@ -49,7 +49,6 @@ impl EnemyFactory {
                 iterations += 1;
                 if iterations > 20 {
                     // We've tried... and failed. Bail out and let them overlap
-                    println!("LOG: 20 attempts at placing enemy. Bailing out..");
                     return random_x;
                 }
                 for p in &self.positions {

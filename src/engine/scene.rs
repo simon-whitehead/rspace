@@ -33,11 +33,11 @@ impl DefaultScene {
 }
 
 impl Scene for DefaultScene {
-    fn init(&mut self, context: &mut Context) {
+    fn init(&mut self, _context: &mut Context) {
         
     }
 
-    fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
+    fn render(&mut self, context: &mut Context, _elapsed: f64) -> SceneResult {
         if context.event_handler.quit || context.event_handler.key_pressed(sdl2::keyboard::Keycode::Escape) {
             return SceneResult::Quit;
         }
@@ -48,7 +48,7 @@ impl Scene for DefaultScene {
         SceneResult::None
     }
 
-    fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
+    fn process(&mut self, _context: &mut Context, _elapsed: f64) -> SceneResult {
         SceneResult::None
     }
 

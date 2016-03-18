@@ -3,7 +3,6 @@ extern crate sdl2;
 use sdl2::render::{Renderer, Texture};
 use sdl2_image::LoadTexture;
 
-use std;
 use std::fs;
 
 use std::path::Path;
