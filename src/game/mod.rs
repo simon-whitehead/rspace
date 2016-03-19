@@ -1,5 +1,5 @@
 
-mod bullet;
+mod bullets;
 mod debug_panel;
 mod explosion;
 mod game_scene;

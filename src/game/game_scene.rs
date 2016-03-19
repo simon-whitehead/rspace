@@ -10,9 +10,9 @@ use engine::cache::AssetCacheResult;
 use engine::context::Context;
 use engine::scene::{Scene, SceneResult};
 
-use ::game::bullet::Bullet;
+use ::game::bullets::{Bullet, BasicEnemyBullet, PlayerBullet};
 use ::game::debug::DebugPanel;
-use ::game::enemies::{Enemy, EnemyFactory, EnemyType};
+use ::game::enemies::{Enemy, EnemyFactory, EnemyAction, EnemyType};
 use ::game::explosion::Explosion;
 use ::game::levels::{LevelParser, Level, Level1, Level2, OpCode};
 use ::game::player::{Player, PlayerProcessResult};
@@ -29,7 +29,7 @@ pub struct GameScene {
     game_over_time: u32,
 
     explosions: Vec<Explosion>,
-    bullets: Vec<Bullet>,
+    bullets: Vec<Box<Bullet>>,
     enemies: Vec<Box<Enemy>>,
     enemy_factory: EnemyFactory,
 
@@ -127,7 +127,12 @@ impl GameScene {
         self.enemy_factory.gc();
 
         for enemy in &mut self.enemies {
-            enemy.process(&mut context.event_handler, elapsed, context.timer.ticks());
+            match enemy.process(&mut context.event_handler, elapsed, context.timer.ticks()) {
+                EnemyAction::Shoot => {
+                    self.bullets.append(&mut enemy.shoot());
+                },
+                _ => ()
+            }
 
             // Have the enemy explode and die
             if enemy.is_dead() {
@@ -159,9 +164,9 @@ impl GameScene {
 
             // Check if the bullet hit an enemy
             for enemy in &mut self.enemies {
-                if enemy.hit_test(Rect::new(bullet.x, bullet.y, 2, 6)) {
+                if enemy.hit_test(Rect::new(bullet.get_x(), bullet.get_y(), 2, 6)) {
                     // If it did ... delete this bullet
-                    bullet.deleted = true;
+                    bullet.delete();
 
                     // Tell the enemy it was damaged
                     enemy.take_damage(10);
@@ -171,7 +176,7 @@ impl GameScene {
 
         // Clear out our bullets and only keep the ones that aren't deleted
         let old_bullets = ::std::mem::replace(&mut self.bullets, vec![]);
-        self.bullets = old_bullets.into_iter().filter(|bullet| !bullet.deleted).collect();
+        self.bullets = old_bullets.into_iter().filter(|bullet| !bullet.is_deleted()).collect();
     }
 }
 

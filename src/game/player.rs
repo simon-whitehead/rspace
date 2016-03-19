@@ -11,7 +11,7 @@ use sdl2_image::LoadTexture;
 use ::engine::context::Context;
 use ::engine::events::Events;
 
-use game::bullet::Bullet;
+use game::bullets::{Bullet, PlayerBullet};
 use game::enemies::Enemy;
 
 pub enum PlayerProcessResult {
@@ -116,10 +116,10 @@ impl Player {
         PlayerProcessResult::None
     }
 
-    pub fn shoot(&self) -> Vec<Bullet> {
+    pub fn shoot(&self) -> Vec<Box<Bullet>> {
         vec![
 
-            Bullet::new((self.x + self.width as i32 / 2, self.y))
+            Box::new(PlayerBullet::new((self.x + self.width as i32 / 2, self.y)))
 
         ]
     }

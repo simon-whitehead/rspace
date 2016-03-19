@@ -15,7 +15,8 @@ use ::engine::context::Context;
 use ::engine::entities::FrameAnimatedSprite;
 use ::engine::events::Events;
 
-use ::game::enemies::Enemy;
+use ::game::bullets::{Bullet, BasicEnemyBullet};
+use ::game::enemies::{EnemyAction, Enemy};
 use ::game::explosion::Explosion;
 
 static HEALTH: i32 = 100;
@@ -37,7 +38,10 @@ pub struct BasicEnemy {
     explosion_cache: AssetCacheResult,
 
     move_interval: u32,
-    last_move_time: u32
+    last_move_time: u32,
+
+    shoot_interval: u32,
+    last_shoot_time: u32
 }
 
 impl BasicEnemy {
@@ -62,7 +66,10 @@ impl BasicEnemy {
             dead: false,
 
             move_interval: 50,   // Every 50 milliseconds, move down the screen slightly
-            last_move_time: 0
+            last_move_time: 0,
+
+            shoot_interval: 2000,   // Dynamic... between 2 and 5 seconds though
+            last_shoot_time: 0
         }
     }
 }
@@ -94,13 +101,21 @@ impl Enemy for BasicEnemy {
         renderer.fill_rect(Rect::new(bar_x, bar_y, (self.width as f64 * health_percentage) as u32, 5)).unwrap();
     }
 
-    fn process(&mut self, _events: &mut Events, _elapsed: f64, time: u32) {
+    fn process(&mut self, _events: &mut Events, _elapsed: f64, time: u32) -> EnemyAction {
+        let mut result = EnemyAction::None;
+
         // Should we move down slightly?
         if time - self.last_move_time >= self.move_interval {
             self.y += 1;
 
             self.last_move_time = time;
         }
+
+        if time - self.last_shoot_time >= self.shoot_interval {
+            result = EnemyAction::Shoot
+        }
+
+        result
     }
 
     fn hit_test(&mut self, rect: sdl2::rect::Rect) -> bool {
@@ -157,5 +172,13 @@ impl Enemy for BasicEnemy {
         explosions.push(Explosion::new((x, y), sprite));
 
         explosions
+    }
+
+    fn shoot(&self) -> Vec<Box<Bullet>> {
+        vec![
+
+            Box::new(BasicEnemyBullet::new((self.x + self.width as i32 / 2, self.y)))
+
+        ]
     }
 }
