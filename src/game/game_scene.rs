@@ -173,14 +173,14 @@ impl GameScene {
                         bullet.delete();
 
                         // Tell the enemy it was damaged
-                        enemy.take_damage(10);
+                        enemy.take_damage(bullet.damage());
                     }
                 }
             } else {
                 // Otherwise an enemy owns the bullet... check if the bullet hit the player
                 if self.player.hit_test(Rect::new(bullet.get_x(), bullet.get_y(), 2, 6)) {
                     bullet.delete();
-                    self.player.take_damage(10);
+                    self.player.take_damage(bullet.damage());
                 }
             }
         }

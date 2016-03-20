@@ -15,4 +15,6 @@ pub trait Bullet {
     fn is_deleted(&self) -> bool;
 
     fn is_player_owned(&self) -> bool;
+
+    fn damage(&self) -> i32;
 }

@@ -15,7 +15,8 @@ pub struct BasicEnemyBullet {
     pub x: i32,
     pub y: i32,
     
-    player_owned: bool
+    player_owned: bool,
+    damage: i32
 }
 
 impl BasicEnemyBullet {
@@ -25,7 +26,9 @@ impl BasicEnemyBullet {
             x: position.0,
             y: position.1,
 
-            player_owned: false
+            player_owned: false,
+
+            damage: 10
         }
     }
 
@@ -64,5 +67,9 @@ impl Bullet for BasicEnemyBullet {
 
     fn is_player_owned(&self) -> bool {
         self.player_owned
+    }
+
+    fn damage(&self) -> i32 {
+        self.damage
     }
 }

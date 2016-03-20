@@ -15,7 +15,8 @@ pub struct PlayerBullet {
     pub x: i32,
     pub y: i32,
 
-    player_owned: bool  // Is this bullet owned by the player or an enemy?
+    player_owned: bool,  // Is this bullet owned by the player or an enemy?
+    damage: i32
 }
 
 impl PlayerBullet {
@@ -24,7 +25,8 @@ impl PlayerBullet {
             deleted: false,
             x: position.0,
             y: position.1,
-            player_owned: true
+            player_owned: true,
+            damage: 10
         }
     }
 
@@ -63,5 +65,9 @@ impl Bullet for PlayerBullet {
 
     fn is_player_owned(&self) -> bool {
         self.player_owned
+    }
+
+    fn damage(&self) -> i32 {
+        self.damage
     }
 }
