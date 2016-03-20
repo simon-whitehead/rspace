@@ -10,7 +10,7 @@ use engine::cache::AssetCacheResult;
 use engine::context::Context;
 use engine::scene::{Scene, SceneResult};
 
-use ::game::bullets::{Bullet, BasicEnemyBullet, PlayerBullet};
+use ::game::bullets::Bullet;
 use ::game::debug::DebugPanel;
 use ::game::enemies::{Enemy, EnemyFactory, EnemyAction, EnemyType};
 use ::game::explosion::Explosion;
@@ -157,19 +157,28 @@ impl GameScene {
         self.explosions = old_explosions.into_iter().filter(|explosion| !explosion.deleted).collect();
     }
 
-    fn process_bullets(&mut self) {
+    fn process_bullets(&mut self, context: &mut Context) {
         // For every bullet we have in the scene... process it
         for bullet in &mut self.bullets {
-            bullet.process();
+            bullet.process(context);
 
-            // Check if the bullet hit an enemy
-            for enemy in &mut self.enemies {
-                if enemy.hit_test(Rect::new(bullet.get_x(), bullet.get_y(), 2, 6)) {
-                    // If it did ... delete this bullet
+            // If the player owns this bullet
+            if bullet.is_player_owned() {
+                // Check if the bullet hit an enemy
+                for enemy in &mut self.enemies {
+                    if enemy.hit_test(Rect::new(bullet.get_x(), bullet.get_y(), 2, 6)) {
+                        // If it did ... delete this bullet
+                        bullet.delete();
+
+                        // Tell the enemy it was damaged
+                        enemy.take_damage(10);
+                    }
+                }
+            } else {
+                // Otherwise an enemy owns the bullet... check if the bullet hit the player
+                if self.player.hit_test(Rect::new(bullet.get_x(), bullet.get_y(), 2, 6)) {
                     bullet.delete();
-
-                    // Tell the enemy it was damaged
-                    enemy.take_damage(10);
+                    self.player.take_damage(10);
                 }
             }
         }
@@ -269,7 +278,7 @@ impl Scene for GameScene {
         self.process_explosions(elapsed);
 
         // Handle the bullets
-        self.process_bullets();
+        self.process_bullets(context);
 
         if context.DEBUG {
             if let Some(ref mut debug_panel) = self.debug_panel {

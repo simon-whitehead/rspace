@@ -1,6 +1,10 @@
 
+extern crate rand;
+
 extern crate sdl2;
 extern crate sdl2_image;
+
+use game::enemies::basic_enemy::rand::{Rng, ThreadRng};
 
 use sdl2::pixels::Color;
 use sdl2::rect::{Point, Rect};
@@ -41,7 +45,9 @@ pub struct BasicEnemy {
     last_move_time: u32,
 
     shoot_interval: u32,
-    last_shoot_time: u32
+    last_shoot_time: u32,
+
+    rng: ThreadRng
 }
 
 impl BasicEnemy {
@@ -69,7 +75,9 @@ impl BasicEnemy {
             last_move_time: 0,
 
             shoot_interval: 2000,   // Dynamic... between 2 and 5 seconds though
-            last_shoot_time: 0
+            last_shoot_time: 0,
+
+            rng: rand::thread_rng()
         }
     }
 }
@@ -112,7 +120,12 @@ impl Enemy for BasicEnemy {
         }
 
         if time - self.last_shoot_time >= self.shoot_interval {
-            result = EnemyAction::Shoot
+            result = EnemyAction::Shoot;
+
+            self.last_shoot_time = time;
+
+            // Randomly choose a time between the next 2 and 6 seconds to shoot again
+            self.shoot_interval = self.rng.gen_range(2, 5) * 1000;
         }
 
         result

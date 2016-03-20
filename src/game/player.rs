@@ -29,6 +29,8 @@ pub struct Player {
     bounds: Rect,
     texture: Option<Texture>,
 
+    health_points: i32,
+
     shoot_interval: u32,
     last_shoot_time: u32
 }
@@ -44,6 +46,8 @@ impl Player {
 
             bounds: bounds,
             texture: None,
+
+            health_points: 100,
             
             shoot_interval: 100,
             last_shoot_time: 0
@@ -122,5 +126,15 @@ impl Player {
             Box::new(PlayerBullet::new((self.x + self.width as i32 / 2, self.y)))
 
         ]
+    }
+
+    pub fn hit_test(&mut self, rect: sdl2::rect::Rect) -> bool {
+        let player_rect = Rect::new(self.x, self.y, self.width, self.height);
+
+        ::engine::helpers::overlap(player_rect, rect)
+    }
+
+    pub fn take_damage(&mut self, damage: i32) {
+        self.health_points -= damage;
     }
 }

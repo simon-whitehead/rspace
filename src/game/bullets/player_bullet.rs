@@ -5,13 +5,17 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::Renderer;
 
+use ::engine::context::Context;
+
 use ::game::bullets::Bullet;
 
 pub struct PlayerBullet {
     pub deleted: bool,
 
     pub x: i32,
-    pub y: i32
+    pub y: i32,
+
+    player_owned: bool  // Is this bullet owned by the player or an enemy?
 }
 
 impl PlayerBullet {
@@ -19,14 +23,15 @@ impl PlayerBullet {
         PlayerBullet {
             deleted: false,
             x: position.0,
-            y: position.1
+            y: position.1,
+            player_owned: true
         }
     }
 
 }
 
 impl Bullet for PlayerBullet {
-    fn process(&mut self) {
+    fn process(&mut self, _context: &mut Context) {
         self.y = self.y - 10;
 
         if self.y < -10 {
@@ -54,5 +59,9 @@ impl Bullet for PlayerBullet {
 
     fn is_deleted(&self) -> bool {
         self.deleted 
+    }
+
+    fn is_player_owned(&self) -> bool {
+        self.player_owned
     }
 }
