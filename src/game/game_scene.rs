@@ -282,6 +282,7 @@ impl Scene for GameScene {
 
         if context.DEBUG {
             if let Some(ref mut debug_panel) = self.debug_panel {
+                debug_panel.set_player_health(self.player.health_points);
                 debug_panel.set_active_explosions(self.explosions.len() as u32);
                 debug_panel.set_enemies(self.enemies.len() as u32);
                 debug_panel.set_bullets(self.bullets.len() as u32);

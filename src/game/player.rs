@@ -16,10 +16,13 @@ use game::enemies::Enemy;
 
 pub enum PlayerProcessResult {
     None,
-    Shoot
+    Shoot,
+    Dead
 }
 
 pub struct Player {
+    pub health_points: i32,
+
     y: i32,
     x: i32,
 
@@ -28,8 +31,6 @@ pub struct Player {
     
     bounds: Rect,
     texture: Option<Texture>,
-
-    health_points: i32,
 
     shoot_interval: u32,
     last_shoot_time: u32
@@ -77,7 +78,7 @@ impl Player {
 
     pub fn process(&mut self, enemies: &mut Vec<Box<Enemy>>, events: &mut Events, time: u32) -> PlayerProcessResult {
         // Handle key presses
-        let result = self.process_keys(events, time);
+        let mut result = self.process_keys(events, time);
 
         // Have we collided with an enemy?
         for enemy in enemies {
@@ -87,6 +88,12 @@ impl Player {
             if ::engine::helpers::overlap(player_rect, enemy_rect) {
                 // We collided ... kill the enemy
                 enemy.take_damage(999999);
+                // Take some damage ourselves
+                self.take_damage(50);
+
+                if self.health_points <= 0 {
+                    result = PlayerProcessResult::Dead;
+                }
             }
         }
 

@@ -16,7 +16,9 @@ pub struct DebugPanel {
     bullets: u32,
 
     level: u32,
-    level_opcode: OpCode
+    level_opcode: OpCode,
+
+    player_health: i32
 }
 
 impl DebugPanel {
@@ -27,7 +29,8 @@ impl DebugPanel {
             enemies: 0,
             bullets: 0,
             level: 0,
-            level_opcode: OpCode::None
+            level_opcode: OpCode::None,
+            player_health: 0
         }
     }
 
@@ -63,6 +66,10 @@ impl DebugPanel {
         self.level_opcode = opcode;
     }
 
+    pub fn set_player_health(&mut self, health: i32) {
+        self.player_health = health;
+    }
+
     fn generate_text(&self) -> String {
         format!(
         
@@ -72,13 +79,15 @@ Level: {}
 Level OpCodes: {:?}
 Active explosions: {}
 Enemies: {}
-Bullets: {}", 
+Bullets: {}
+Player HP: {}", 
               
               self.level,
               self.level_opcode,
               self.active_explosions,
               self.enemies,
-              self.bullets
+              self.bullets,
+              self.player_health
         )
     }
 }
