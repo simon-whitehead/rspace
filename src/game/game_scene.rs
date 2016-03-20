@@ -202,13 +202,13 @@ impl Scene for GameScene {
             self.debug_panel = Some(panel);
         }
 
-        self.player.init(context);
-
         // Initialize explosion cached assets
         let large_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/large/");
         let medium_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/medium/");
         let small_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/small/");
         let tiny_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/tiny/");
+
+        self.player.init(context, large_explosion_cache.clone());
 
         // Store our caches for later
         self.large_explosion_cache = Some(large_explosion_cache);
@@ -232,15 +232,16 @@ impl Scene for GameScene {
         let events = &mut context.event_handler;
 
         // Quit if someone quits or Game Over is done
-        if (events.quit || events.key_pressed(sdl2::keyboard::Keycode::Escape)) ||
-            self.game_over_time > 0 && (context.timer.ticks() - self.game_over_time >= self.game_over_interval) {
+        if events.quit || events.key_pressed(sdl2::keyboard::Keycode::Escape) {
             return SceneResult::Quit;
         }
         
         context.renderer.set_draw_color(Color::RGB(0, 0, 0));
         context.renderer.clear();
 
-        self.player.render(&mut context.renderer);
+        if self.player.alive() {
+            self.player.render(&mut context.renderer);
+        }
 
         for enemy in &mut self.enemies {
             enemy.render(&context.texture_cache, &mut context.renderer, elapsed);
@@ -264,14 +265,21 @@ impl Scene for GameScene {
     }
 
     fn process(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {
-        // Handle player actions
-        match self.player.process(&mut self.enemies, &mut context.event_handler, context.timer.ticks()) {
-            PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
-            PlayerProcessResult::Dead => {
-                // Player died ... lets change the scene
-                return SceneResult::ChangeScene(Box::new(GameOverScene::new(self.get_bounds())));
+        if self.game_over_time > 0 && (context.timer.ticks() - self.game_over_time >= self.game_over_interval) {
+            // Game over ... lets change the scene
+            return SceneResult::ChangeScene(Box::new(GameOverScene::new(self.get_bounds())));
+        }
+
+        // Handle player actions if they are still alive
+        if self.player.alive() {
+            match self.player.process(&mut self.enemies, &mut context.event_handler, context.timer.ticks()) {
+                PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
+                PlayerProcessResult::Dead => {
+                    self.explosions.append(&mut self.player.explode(context));
+                    self.game_over_time = context.timer.ticks();
+                }
+                _ => ()
             }
-            _ => ()
         }
 
         // Handle the level VM

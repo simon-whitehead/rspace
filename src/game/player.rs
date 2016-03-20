@@ -8,11 +8,14 @@ use sdl2::render::{Renderer, Texture, TextureQuery};
 
 use sdl2_image::LoadTexture;
 
+use ::engine::cache::AssetCacheResult;
 use ::engine::context::Context;
+use ::engine::entities::FrameAnimatedSprite;
 use ::engine::events::Events;
 
 use game::bullets::{Bullet, PlayerBullet};
 use game::enemies::Enemy;
+use game::explosion::Explosion;
 
 pub enum PlayerProcessResult {
     None,
@@ -32,6 +35,8 @@ pub struct Player {
     bounds: Rect,
     texture: Option<Texture>,
 
+    explosion_cache: Option<AssetCacheResult>,
+
     shoot_interval: u32,
     last_shoot_time: u32
 }
@@ -48,6 +53,8 @@ impl Player {
             bounds: bounds,
             texture: None,
 
+            explosion_cache: None,
+
             health_points: 100,
             
             shoot_interval: 100,
@@ -55,7 +62,7 @@ impl Player {
         }
     }
 
-    pub fn init(&mut self, context: &mut Context) {
+    pub fn init(&mut self, context: &mut Context, explosion_cache: AssetCacheResult) {
         let tex = context.renderer.load_texture(Path::new("assets/player/ship.png")).unwrap();
 
         let TextureQuery { width, height, .. } = tex.query();
@@ -67,6 +74,7 @@ impl Player {
         self.y = self.bounds.height() as i32 - self.height as i32;
 
         self.texture = Some(tex);
+        self.explosion_cache = Some(explosion_cache);
     }
 
     pub fn render(&mut self, renderer: &mut Renderer) {
@@ -147,5 +155,28 @@ impl Player {
 
     pub fn take_damage(&mut self, damage: i32) {
         self.health_points -= damage;
+    }
+
+    // Generate explosions for the player
+    pub fn explode(&self, context: &mut Context) -> Vec<Explosion> {
+        let mut result = Vec::new();
+        let bounds = self.bounds;
+        let start_x = self.x + (self.width as i32 / 2);
+        let start_y = self.y + (self.height as i32 / 2);
+
+        if let Some(ref cache) = self.explosion_cache {
+            let mut sprite = FrameAnimatedSprite::new(0.05, bounds, (*cache).clone());
+            sprite.init(context);
+
+            let x = start_x - sprite.width as i32 / 2;
+            let y = start_y - (sprite.height as i32 / 2);
+            result.push(Explosion::new((x, y), sprite));
+        }
+
+        result
+    }
+
+    pub fn alive(&self) -> bool {
+        self.health_points > 0
     }
 }
