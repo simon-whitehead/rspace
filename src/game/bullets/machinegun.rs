@@ -9,7 +9,7 @@ use ::engine::context::Context;
 
 use ::game::bullets::Bullet;
 
-pub struct PlayerBullet {
+pub struct MachineGunBullet {
     pub deleted: bool,
 
     pub x: i32,
@@ -19,9 +19,9 @@ pub struct PlayerBullet {
     damage: i32
 }
 
-impl PlayerBullet {
-    pub fn new(position: (i32, i32)) -> PlayerBullet {
-        PlayerBullet {
+impl MachineGunBullet {
+    pub fn new(position: (i32, i32)) -> MachineGunBullet {
+        MachineGunBullet {
             deleted: false,
             x: position.0,
             y: position.1,
@@ -32,7 +32,7 @@ impl PlayerBullet {
 
 }
 
-impl Bullet for PlayerBullet {
+impl Bullet for MachineGunBullet {
     fn process(&mut self, _context: &mut Context) {
         self.y = self.y - 10;
 

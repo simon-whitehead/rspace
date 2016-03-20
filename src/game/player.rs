@@ -13,7 +13,7 @@ use ::engine::context::Context;
 use ::engine::entities::FrameAnimatedSprite;
 use ::engine::events::Events;
 
-use game::bullets::{Bullet, PlayerBullet};
+use game::bullets::{Bullet, MachineGunBullet};
 use game::enemies::Enemy;
 use game::explosion::Explosion;
 
@@ -98,10 +98,6 @@ impl Player {
                 enemy.take_damage(999999);
                 // Take some damage ourselves
                 self.take_damage(50);
-
-                if self.health_points <= 0 {
-                    result = PlayerProcessResult::Dead;
-                }
             }
         }
 
@@ -142,7 +138,7 @@ impl Player {
     pub fn shoot(&self) -> Vec<Box<Bullet>> {
         vec![
 
-            Box::new(PlayerBullet::new((self.x + self.width as i32 / 2, self.y)))
+            Box::new(MachineGunBullet::new((self.x + self.width as i32 / 2, self.y)))
 
         ]
     }

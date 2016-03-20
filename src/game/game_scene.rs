@@ -271,7 +271,7 @@ impl Scene for GameScene {
         }
 
         // Handle player actions if they are still alive
-        if self.player.alive() {
+        if self.game_over_time == 0 {
             match self.player.process(&mut self.enemies, &mut context.event_handler, context.timer.ticks()) {
                 PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
                 PlayerProcessResult::Dead => {
