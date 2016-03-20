@@ -7,7 +7,7 @@ use sdl2::pixels::Color;
 use ::engine::cache::TextureCache;
 use ::engine::context::Context;
 use ::engine::events::Events;
-use ::engine::scene::{DefaultScene, FrameTimer, Scene};
+use ::engine::scene::{DefaultScene, FrameTimer, Scene, SceneResult};
 use ::engine::text::Text;
 
 pub struct Window<'window> {
@@ -93,7 +93,13 @@ impl<'window> Window<'window> {
         self.context.event_handler.pump();
 
         // Let our current scene update
-        self.current_scene.process(&mut self.context, self.frame_timer.elapsed);
+        match self.current_scene.process(&mut self.context, self.frame_timer.elapsed) {
+            SceneResult::ChangeScene(mut scene) => {
+                scene.init(&mut self.context);
+                self.current_scene = scene; 
+            },
+            _ => ()
+        }
         
         // If we have an FPS surface, update its value
         if let Some(ref mut fps) = self.fps {

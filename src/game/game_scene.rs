@@ -17,6 +17,8 @@ use ::game::explosion::Explosion;
 use ::game::levels::{LevelParser, Level, Level1, Level2, OpCode};
 use ::game::player::{Player, PlayerProcessResult};
 
+use ::game::scenes::GameOverScene;
+
 pub struct GameScene {
     bounds: Rect,
     player: Player,
@@ -265,6 +267,10 @@ impl Scene for GameScene {
         // Handle player actions
         match self.player.process(&mut self.enemies, &mut context.event_handler, context.timer.ticks()) {
             PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
+            PlayerProcessResult::Dead => {
+                // Player died ... lets change the scene
+                return SceneResult::ChangeScene(Box::new(GameOverScene::new(self.get_bounds())));
+            }
             _ => ()
         }
 

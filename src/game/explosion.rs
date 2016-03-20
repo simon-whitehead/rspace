@@ -18,15 +18,15 @@ impl Explosion {
     pub fn new(position: (i32, i32),
                sprite: FrameAnimatedSprite) -> Explosion {
 
-        Explosion {
-            x: position.0,
-            y: position.1,
+    Explosion {
+        x: position.0,
+        y: position.1,
 
-            sprite: sprite,
+        sprite: sprite,
 
-            deleted: false
-        }
-   } 
+        deleted: false
+    }
+} 
 
     pub fn render(&mut self, texture_cache: &TextureCache, renderer: &mut Renderer) {
         self.sprite.render((self.x, self.y), texture_cache, renderer);

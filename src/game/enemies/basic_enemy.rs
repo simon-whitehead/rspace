@@ -190,7 +190,7 @@ impl Enemy for BasicEnemy {
     fn shoot(&self) -> Vec<Box<Bullet>> {
         vec![
 
-            Box::new(BasicEnemyBullet::new((self.x + self.width as i32 / 2, self.y)))
+            Box::new(BasicEnemyBullet::new((self.x + self.width as i32 / 2, self.y + self.height as i32)))
 
         ]
     }

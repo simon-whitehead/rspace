@@ -97,6 +97,10 @@ impl Player {
             }
         }
 
+        if self.health_points <= 0 {
+            result = PlayerProcessResult::Dead;
+        }
+
         result
     }
 
