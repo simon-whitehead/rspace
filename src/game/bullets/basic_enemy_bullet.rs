@@ -28,7 +28,7 @@ impl BasicEnemyBullet {
 
             player_owned: false,
 
-            damage: 100
+            damage: 10
         }
     }
 
