@@ -271,15 +271,15 @@ impl Scene for GameScene {
         }
 
         // Handle player actions if they are still alive
-        match self.player.process(&mut self.enemies, &mut context.event_handler, context.timer.ticks()) {
-            PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
-            PlayerProcessResult::Dead => {
-                if self.game_over_time == 0 {
+        if self.game_over_time == 0 {
+            match self.player.process(&mut self.enemies, &mut context.event_handler, context.timer.ticks()) {
+                PlayerProcessResult::Shoot => self.bullets.append(&mut self.player.shoot()),
+                PlayerProcessResult::Dead => {
                     self.explosions.append(&mut self.player.explode(context));
                     self.game_over_time = context.timer.ticks();
                 }
+                _ => ()
             }
-            _ => ()
         }
 
         // Handle the level VM
