@@ -23,7 +23,7 @@ impl TextureCache {
         }
     }
 
-    pub fn precache(&mut self, renderer: &Renderer, path_str: &'static str) -> AssetCacheResult {
+    pub fn precache_path(&mut self, renderer: &Renderer, path_str: &'static str) -> AssetCacheResult {
         // Store the current index
         let current_index = self.index; // Where does this group start in the cache vector
 
@@ -31,16 +31,40 @@ impl TextureCache {
         let files = fs::read_dir(path).unwrap();
         let mut length = 0; // How many frames are in this group?
 
+        let mut width = 0;
+        let mut height = 0;
+
         // Iterate over the files in the directory and pull them in
         for file in files {
             let path = file.unwrap().path();
             let texture = renderer.load_texture(path.as_path()).unwrap();
+            let query = texture.query();
+            width = query.width;
+            height = query.height;
             self.assets.push(texture);
             self.index += 1;
             length += 1;
         }
 
         // Return a view over the cached assets
-        AssetCacheResult::new(current_index, length)
+        AssetCacheResult::new(current_index, length, width, height)
+    }
+
+    pub fn precache_file(&mut self, renderer: &Renderer, file_path: &'static str) -> AssetCacheResult {
+        // Store the current index
+        let current_index = self.index; // Where does this group start in the cache vector
+
+        let path = Path::new(file_path);
+
+        let texture = renderer.load_texture(path).unwrap();
+        let query = texture.query();
+        let width = query.width;
+        let height = query.height;
+
+        self.assets.push(texture);
+        self.index += 1;
+
+        // Return a view over the cached assets
+        AssetCacheResult::new(current_index, 1, width, height)
     }
 }

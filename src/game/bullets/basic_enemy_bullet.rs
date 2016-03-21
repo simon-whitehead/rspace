@@ -5,6 +5,7 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::Renderer;
 
+use ::engine::cache::TextureCache;
 use ::engine::context::Context;
 
 use ::game::bullets::Bullet;
@@ -43,7 +44,7 @@ impl Bullet for BasicEnemyBullet {
         }
     }
 
-    fn render(&mut self, renderer: &mut Renderer) {
+    fn render(&mut self, _texture_cache: &TextureCache, renderer: &mut Renderer) {
         renderer.set_draw_color(Color::RGB(255, 255, 0));
 
         renderer.fill_rect(Rect::new(self.x, self.y, 2, 6)).unwrap();

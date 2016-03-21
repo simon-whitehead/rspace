@@ -2,11 +2,12 @@ extern crate sdl2;
 
 use sdl2::render::Renderer;
 
+use ::engine::cache::TextureCache;
 use ::engine::context::Context;
 
 pub trait Bullet {
     fn process(&mut self, context: &mut Context);
-    fn render(&mut self, renderer: &mut Renderer);
+    fn render(&mut self, texture_cache: &TextureCache, renderer: &mut Renderer);
 
     fn get_x(&self) -> i32;
     fn get_y(&self) -> i32;

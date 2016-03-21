@@ -35,6 +35,9 @@ pub struct GameScene {
     enemies: Vec<Box<Enemy>>,
     enemy_factory: EnemyFactory,
 
+    // Weapons
+    machinegun_cache: Option<AssetCacheResult>,
+
     large_explosion_cache: Option<AssetCacheResult>,
     medium_explosion_cache: Option<AssetCacheResult>,
     small_explosion_cache: Option<AssetCacheResult>,
@@ -61,6 +64,9 @@ impl GameScene {
             bullets: Vec::new(),
             enemies: Vec::new(),
             enemy_factory: EnemyFactory::new(bounds),
+
+            // Weapons
+            machinegun_cache: None,
 
             large_explosion_cache: None,
             medium_explosion_cache: None,
@@ -203,18 +209,25 @@ impl Scene for GameScene {
         }
 
         // Initialize explosion cached assets
-        let large_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/large/");
-        let medium_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/medium/");
-        let small_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/small/");
-        let tiny_explosion_cache = context.texture_cache.precache(&context.renderer, "assets/explosion/tiny/");
+        let large_explosion_cache = context.texture_cache.precache_path(&context.renderer, "assets/explosion/large/");
+        let medium_explosion_cache = context.texture_cache.precache_path(&context.renderer, "assets/explosion/medium/");
+        let small_explosion_cache = context.texture_cache.precache_path(&context.renderer, "assets/explosion/small/");
+        let tiny_explosion_cache = context.texture_cache.precache_path(&context.renderer, "assets/explosion/tiny/");
 
-        self.player.init(context, large_explosion_cache.clone());
+        let machinegun_cache = context.texture_cache.precache_file(&context.renderer, "assets/bullets/machinegun.png");
+
+        self.player.init(context, 
+                         large_explosion_cache.clone(),
+                         machinegun_cache.clone()
+                        );
 
         // Store our caches for later
         self.large_explosion_cache = Some(large_explosion_cache);
         self.medium_explosion_cache = Some(medium_explosion_cache);
         self.small_explosion_cache = Some(small_explosion_cache);
         self.tiny_explosion_cache = Some(tiny_explosion_cache);
+
+        self.machinegun_cache = Some(machinegun_cache);
 
         self.levels = vec![
 
@@ -252,7 +265,7 @@ impl Scene for GameScene {
         }
 
         for bullet in &mut self.bullets {
-            bullet.render(&mut context.renderer);
+            bullet.render(&context.texture_cache, &mut context.renderer);
         }
 
         if context.DEBUG {

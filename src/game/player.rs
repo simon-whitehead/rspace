@@ -35,6 +35,9 @@ pub struct Player {
     bounds: Rect,
     texture: Option<Texture>,
 
+    // Weapons
+    machinegun: Option<AssetCacheResult>,
+
     explosion_cache: Option<AssetCacheResult>,
 
     shoot_interval: u32,
@@ -53,6 +56,9 @@ impl Player {
             bounds: bounds,
             texture: None,
 
+            // Weapons
+            machinegun: None,
+
             explosion_cache: None,
 
             health_points: 100,
@@ -62,7 +68,7 @@ impl Player {
         }
     }
 
-    pub fn init(&mut self, context: &mut Context, explosion_cache: AssetCacheResult) {
+    pub fn init(&mut self, context: &mut Context, explosion_cache: AssetCacheResult, machinegun_cache: AssetCacheResult) {
         let tex = context.renderer.load_texture(Path::new("assets/player/ship.png")).unwrap();
 
         let TextureQuery { width, height, .. } = tex.query();
@@ -74,6 +80,7 @@ impl Player {
         self.y = self.bounds.height() as i32 - self.height as i32;
 
         self.texture = Some(tex);
+        self.machinegun = Some(machinegun_cache);
         self.explosion_cache = Some(explosion_cache);
     }
 
@@ -136,11 +143,15 @@ impl Player {
     }
 
     pub fn shoot(&self) -> Vec<Box<Bullet>> {
-        vec![
+        if let Some(ref machinegun) = self.machinegun {
+            vec![
 
-            Box::new(MachineGunBullet::new((self.x + self.width as i32 / 2, self.y)))
+                Box::new(MachineGunBullet::new((self.x + self.width as i32 / 2, self.y), (15, 17), (*machinegun).clone(), self.bounds))
 
-        ]
+            ]
+        } else {
+            vec![]
+        }
     }
 
     pub fn hit_test(&mut self, rect: sdl2::rect::Rect) -> bool {
