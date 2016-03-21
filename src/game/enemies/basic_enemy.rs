@@ -38,6 +38,7 @@ pub struct BasicEnemy {
     bounds: Rect,
 
     texture: Option<Texture>,
+    bullet: AssetCacheResult,
 
     explosion_cache: AssetCacheResult,
 
@@ -53,7 +54,8 @@ pub struct BasicEnemy {
 impl BasicEnemy {
     pub fn new(position: (i32, i32),
                bounds: Rect,
-               explosion_cache: AssetCacheResult) -> BasicEnemy {
+               explosion_cache: AssetCacheResult,
+               bullet_cache: AssetCacheResult) -> BasicEnemy {
 
         BasicEnemy {
             x: position.0,
@@ -65,6 +67,7 @@ impl BasicEnemy {
             bounds: bounds,
 
             texture: None,
+            bullet: bullet_cache,
 
             explosion_cache: explosion_cache,
 
@@ -188,9 +191,11 @@ impl Enemy for BasicEnemy {
     }
 
     fn shoot(&self) -> Vec<Box<Bullet>> {
+        // Half the width of the enemy - half the width of the bullet
+        let x_pos = (self.width / 2) - (self.bullet.width / 2);
         vec![
 
-            Box::new(BasicEnemyBullet::new((self.x + self.width as i32 / 2, self.y + self.height as i32)))
+            Box::new(BasicEnemyBullet::new((self.x + x_pos as i32, self.y + self.height as i32), (self.bullet.width, self.bullet.height), self.bullet.clone(), self.bounds))
 
         ]
     }

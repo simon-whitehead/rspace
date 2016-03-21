@@ -14,7 +14,9 @@ use ::game::enemies::{Enemy, BasicEnemy};
 pub struct EnemyFactory {
     positions: Vec<i32>,
     bounds: Rect,
-    rng: rand::ThreadRng
+    rng: rand::ThreadRng,
+
+    basic_enemy_bullet: AssetCacheResult
 }
 
 impl EnemyFactory {
@@ -22,8 +24,14 @@ impl EnemyFactory {
        EnemyFactory {
            positions: Vec::new(),
            bounds: bounds,
-           rng: rand::thread_rng()
+           rng: rand::thread_rng(),
+
+           basic_enemy_bullet: AssetCacheResult::new(0, 0, 0, 0)
        }
+    }
+
+    pub fn init(&mut self, basic_enemy_bullet: AssetCacheResult) {
+        self.basic_enemy_bullet = basic_enemy_bullet;
     }
 
     // Remove the last 5 enemy positions we have stored
@@ -71,7 +79,7 @@ impl EnemyFactory {
     }
 
     pub fn create_basic_enemy(&mut self, context: &mut Context, cache: AssetCacheResult) -> BasicEnemy {
-        let mut enemy = BasicEnemy::new((0, 0), self.bounds, cache);
+        let mut enemy = BasicEnemy::new((0, 0), self.bounds, cache, self.basic_enemy_bullet.clone());
         enemy.init(context);
 
         let random_x = self.get_x(enemy.get_width() as i32) as u32;

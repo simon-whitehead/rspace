@@ -215,6 +215,8 @@ impl Scene for GameScene {
         let tiny_explosion_cache = context.texture_cache.precache_path(&context.renderer, "assets/explosion/tiny/");
 
         let machinegun_cache = context.texture_cache.precache_file(&context.renderer, "assets/bullets/machinegun.png");
+        
+        let basic_enemy_bullet = context.texture_cache.precache_file(&context.renderer, "assets/bullets/basicenemy.png");
 
         self.player.init(context, 
                          large_explosion_cache.clone(),
@@ -239,6 +241,8 @@ impl Scene for GameScene {
         self.levels[self.current_level].init();
 
         self.level_parser = Some(LevelParser::new());
+
+        self.enemy_factory.init(basic_enemy_bullet);
     }
 
     fn render(&mut self, context: &mut Context, elapsed: f64) -> SceneResult {

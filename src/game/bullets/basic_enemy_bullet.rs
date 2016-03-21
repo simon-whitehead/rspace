@@ -5,7 +5,7 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::Renderer;
 
-use ::engine::cache::TextureCache;
+use ::engine::cache::{AssetCacheResult, TextureCache};
 use ::engine::context::Context;
 
 use ::game::bullets::Bullet;
@@ -15,13 +15,23 @@ pub struct BasicEnemyBullet {
 
     pub x: i32,
     pub y: i32,
+
+    pub width: u32,
+    pub height: u32,
+
+    cache: AssetCacheResult,
+    bounds: Rect,
     
     player_owned: bool,
     damage: i32
 }
 
 impl BasicEnemyBullet {
-    pub fn new(position: (i32, i32)) -> BasicEnemyBullet {
+    pub fn new(position: (i32, i32),
+               size: (u32, u32),
+               cache: AssetCacheResult,
+               bounds: Rect) -> BasicEnemyBullet {
+
         BasicEnemyBullet {
             deleted: false,
             x: position.0,
@@ -29,7 +39,13 @@ impl BasicEnemyBullet {
 
             player_owned: false,
 
-            damage: 10
+            damage: 10,
+
+            width: size.0,
+            height: size.1,
+            
+            cache: cache,
+            bounds: bounds
         }
     }
 
@@ -44,10 +60,10 @@ impl Bullet for BasicEnemyBullet {
         }
     }
 
-    fn render(&mut self, _texture_cache: &TextureCache, renderer: &mut Renderer) {
-        renderer.set_draw_color(Color::RGB(255, 255, 0));
+    fn render(&mut self, texture_cache: &TextureCache, renderer: &mut Renderer) {
+        let texture = &texture_cache.assets[self.cache.index as usize];
 
-        renderer.fill_rect(Rect::new(self.x, self.y, 2, 6)).unwrap();
+        renderer.copy(texture, Some(self.bounds), Some(Rect::new(self.x, self.y, self.width, self.height)));
     }
 
     fn get_x(&self) -> i32 {
