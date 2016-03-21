@@ -144,9 +144,12 @@ impl Player {
 
     pub fn shoot(&self) -> Vec<Box<Bullet>> {
         if let Some(ref machinegun) = self.machinegun {
+            let cache = (*machinegun).clone();
+            // Half the width of the player - half the width of the bullet
+            let x_pos = (self.width / 2) - (cache.width / 2);
             vec![
 
-                Box::new(MachineGunBullet::new((self.x + self.width as i32 / 2, self.y), (15, 17), (*machinegun).clone(), self.bounds))
+                Box::new(MachineGunBullet::new((self.x + x_pos as i32, self.y), (cache.width, cache.height), cache, self.bounds))
 
             ]
         } else {
